@@ -85,7 +85,7 @@ func (a *AudioRecorder) StartRecording() {
 	defer a.mutex.Unlock()
 
 	if a.recording {
-		log.Println("Audio recording is already in progress.")
+		fmt.Println("Audio recording is already in progress.")
 		return
 	}
 
@@ -118,7 +118,7 @@ func (a *AudioRecorder) StartRecording() {
 	a.recording = true
 	a.stopRecordingCh = make(chan struct{}) // Create a channel for notifying if the recording has stopped
 
-	log.Println("Started audio recording.")
+	fmt.Println("Started audio recording.")
 }
 
 func (a *AudioRecorder) WaitForRecordingToStop() {
@@ -141,7 +141,7 @@ func (a *AudioRecorder) StopRecording() {
 
 	close(a.stopRecordingCh) // Close the channel to signal that recording has stopped
 
-	log.Println("Stopped audio recording.")
+	fmt.Println("Stopped audio recording.")
 }
 
 func (a *AudioRecorder) GetRecordedData() []byte {
@@ -251,7 +251,6 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 
 func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, clapDetection bool) error {
 	a.StartRecording()
-	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or clap...")
 	time.AfterFunc(maxDuration, func() {
 		a.StopRecording()
 	})

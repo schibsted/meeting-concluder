@@ -25,6 +25,7 @@ func main() {
 	}
 
 	// Record audio to the specified file
+	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or clap...")
 	if err := audioRecorder.RecordToFile(wavFilename, 10*time.Second, clapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
