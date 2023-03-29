@@ -14,7 +14,7 @@ Some refactoring is needed: moving functionality from utilities to the concluder
 * `cmd/wav2mp4/wav2mp4` was used for converting `cmd/rec/output.wav` to `cmd/wav2mp4/output.mp4`.
 * `cmd/audio2text/audio2text` was used for converting `cmd/wav2mp4/output.wav` to `cmd/audio2text/output.txt`.
 * `cmd/conclude/conclude` was used for converting `cmd/audio2text/output.txt` to `cmd/conclude/output.txt`.
-* `cmd/slackhello/slackhello` was used for posting `cmd/conclude/output.txt` to `#nmp-meeting-concluder` on Slack.
+* `cmd/slackpost/slackpost` was used for posting `cmd/conclude/output.txt` to `#nmp-meeting-concluder` on Slack.
 
 ## Requirements
 
