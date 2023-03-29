@@ -19,9 +19,13 @@ github.com/google/go-querystring/query
 # github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 ## explicit; go 1.18
 github.com/gordonklaus/portaudio
-# github.com/pelletier/go-toml v1.9.5
-## explicit; go 1.12
-github.com/pelletier/go-toml
+# github.com/pelletier/go-toml/v2 v2.0.7
+## explicit; go 1.16
+github.com/pelletier/go-toml/v2
+github.com/pelletier/go-toml/v2/internal/characters
+github.com/pelletier/go-toml/v2/internal/danger
+github.com/pelletier/go-toml/v2/internal/tracker
+github.com/pelletier/go-toml/v2/unstable
 # github.com/xyproto/env/v2 v2.0.0
 ## explicit; go 1.15
 github.com/xyproto/env/v2

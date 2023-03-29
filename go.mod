@@ -8,7 +8,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/google/go-querystring v1.1.0
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
-	github.com/pelletier/go-toml v1.9.5
+	github.com/pelletier/go-toml/v2 v2.0.7
 	github.com/xyproto/env/v2 v2.0.0
 )
 
