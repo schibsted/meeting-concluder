@@ -1,5 +1,6 @@
 # Utilities
 cmd/audio2text/audio2text
+cmd/conclude/conclude
 cmd/play/play
 cmd/rec/rec
 cmd/slackhello/slackhello
