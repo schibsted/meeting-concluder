@@ -18,7 +18,8 @@ Some refactoring is needed: moving functionality from utilities to the concluder
 
 ## Requirements
 
-* The `ffmpeg` command line utility (available in Homebrew).
+* The `ffmpeg` command (available in Homebrew), for the `cmd/wav2mp4/wav2mp4` utility.
+* The `afplay` command, for the `cmd/play/play` utility.
 * The Go compiler.
 * A working microphone.
 * An Slack web hook URL, either set as `SLACK_WEBHOOK_URL`, or as `slack_webhook` in `~/.config/concluder.toml`.
