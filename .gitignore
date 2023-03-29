@@ -13,3 +13,6 @@ cmd/web/web
 *.out
 *.swp
 include.txt
+
+# Audio-related
+*.wav
