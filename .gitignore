@@ -3,7 +3,7 @@ cmd/audio2text/audio2text
 cmd/conclude/conclude
 cmd/play/play
 cmd/rec/rec
-cmd/slackhello/slackhello
+cmd/slackpost/slackpost
 cmd/wav2mp4/wav2mp4
 cmd/web/web
 
