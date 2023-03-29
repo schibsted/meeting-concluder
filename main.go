@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -26,19 +27,22 @@ func main() {
 	}
 }
 
-func setupRoutes(config *Config) *mux.Router {
-	router := mux.NewRouter()
+func setupRoutes(config *Config) http.Handler {
+	router := chi.NewRouter()
 
 	// Create MeetingController
 	meetingController := NewMeetingController(config)
 
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+
 	// Set up routes
-	router.HandleFunc("/", meetingController.Index).Methods("GET")
-	router.HandleFunc("/start", meetingController.StartMeeting).Methods("POST")
-	router.HandleFunc("/stop", meetingController.StopMeeting).Methods("POST")
-	router.HandleFunc("/summary", meetingController.GetSummary).Methods("GET")
-	router.HandleFunc("/update-summary", meetingController.UpdateSummary).Methods("POST")
-	router.HandleFunc("/configure", meetingController.ConfigureSlack).Methods("POST")
+	router.Method("GET", "/", meetingController.Index)
+	router.Method("POST", "/start", meetingController.StartMeeting)
+	router.Method("POST", "/stop", meetingController.StopMeeting)
+	router.Method("GET", "/summary", meetingController.GetSummary)
+	router.Method("POST", "/update-summary", meetingController.UpdateSummary)
+	router.Method("POST", "/configure", meetingController.ConfigureSlack)
 
 	return router
 }

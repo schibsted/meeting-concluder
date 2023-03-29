@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 )
 
 type MeetingController struct {
@@ -80,4 +80,21 @@ func (mc *MeetingController) ConfigureSlack(w http.ResponseWriter, r *http.Reque
 	slackToken := r.FormValue("token")
 	channel := r.FormValue("channel")
 	mc.slackClient.UpdateConfig(slackToken, channel)
+}
+
+func (mc *MeetingController) Index(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/start", http.StatusSeeOther)
+}
+
+func (mc *MeetingController) Routes() *chi.Mux {
+	router := chi.NewRouter()
+
+	router.Get("/", mc.Index)
+	router.Post("/start", mc.StartMeeting)
+	router.Post("/stop", mc.StopMeeting)
+	router.Get("/summary", mc.GetSummary)
+	router.Post("/update-summary", mc.UpdateSummary)
+	router.Post("/configure", mc.ConfigureSlack)
+
+	return router
 }
