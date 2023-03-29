@@ -31,15 +31,16 @@ func extractText(jsonStr string) (string, error) {
 	return response.Text, nil
 }
 
-func Transcribe(mp4FilePath string) (string, error) {
+// TranscribeAudio can extract the text from .mp4, .wav or several different audio file types
+func TranscribeAudio(audioFilePath string) (string, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	file, err := os.Open(mp4FilePath)
+	file, err := os.Open(audioFilePath)
 	if err != nil {
 		return "", fmt.Errorf("Error opening file: %v\n", err)
 	}
 	defer file.Close()
-	part, err := writer.CreateFormFile("file", mp4FilePath)
+	part, err := writer.CreateFormFile("file", audioFilePath)
 	if err != nil {
 		return "", fmt.Errorf("Error creating form file: %v\n", err)
 	}

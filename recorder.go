@@ -41,6 +41,8 @@ func (audioRecorder *AudioRecorder) RecordTranscribeConvertConcludePost(stopReco
 		}
 	}()
 
+	go audioRecorder.ListenForClapSoundToStopRecording()
+
 	audioRecorder.WaitForRecordingToStop()
 	close(recordingStoppedCh)
 
@@ -55,7 +57,7 @@ func (audioRecorder *AudioRecorder) RecordTranscribeConvertConcludePost(stopReco
 	}
 
 	// Transcribe the audio
-	transcript, err := Transcribe(mp4File.Name())
+	transcript, err := TranscribeAudio(mp4File.Name())
 	if err != nil {
 		return "", fmt.Errorf("error transcribing %s: %v", mp4File.Name(), err)
 	}

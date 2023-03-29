@@ -118,6 +118,7 @@ func (a *AudioRecorder) StartRecording() {
 }
 
 func (a *AudioRecorder) WaitForRecordingToStop() {
+	// TODO: Use a channel instead
 	for a.recording {
 		a.mutex.RLock()
 		time.Sleep(200 * time.Millisecond)
@@ -143,6 +144,15 @@ func (a *AudioRecorder) StopRecording() {
 
 func (a *AudioRecorder) GetRecordedData() []byte {
 	return a.buffer.Bytes()
+}
+
+func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error) {
+	desiredSamples := int(length.Seconds() * 16000)
+	l := a.buffer.Len()
+	if desiredSamples >= l {
+		return []byte{}, nil
+	}
+	return a.buffer.Bytes()[l-desiredSamples:], nil
 }
 
 func (a *AudioRecorder) captureAudio(inputBuffer, _ []float32) {
@@ -171,7 +181,7 @@ func (a *AudioRecorder) SaveWav(filename string) error {
 	// Create new audio.IntBuffer.
 	audioBuf, err := newAudioIntBuffer(bytes.NewReader(a.GetRecordedData()))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// Write the recorded data to the .wav file
@@ -181,12 +191,40 @@ func (a *AudioRecorder) SaveWav(filename string) error {
 	}
 
 	// Close the .wav file
-	err = encoder.Close()
+	return encoder.Close()
+}
+
+// SaveTailToWav saves the last N seconds of the audio buffer to file
+func (a *AudioRecorder) SaveTailToWav(length time.Duration, filename string) error {
+	// Create a new .wav file
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Initialize the wav encoder
+	encoder := wav.NewEncoder(file, 16000, 16, 1, 1)
+
+	// Create new audio.IntBuffer.
+	tailData, err := a.GetRecordedDataTail(length)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	audioBuf, err := newAudioIntBuffer(bytes.NewReader(tailData))
+	if err != nil {
+		return err
+	}
+
+	// Write the recorded data to the .wav file
+	err = encoder.Write(audioBuf)
+	if err != nil {
+		return err
+	}
+
+	// Close the .wav file
+	return encoder.Close()
 }
 
 func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
