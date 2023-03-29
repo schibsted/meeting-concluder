@@ -30,7 +30,8 @@ func (mc *MeetingController) StartMeeting(w http.ResponseWriter, r *http.Request
 	if !mc.meetingStarted {
 		mc.meetingStarted = true
 		mc.startTime = time.Now()
-		mc.audioRecorder.StartRecording()
+		const letUserSelectDevice = false
+		mc.audioRecorder.StartRecording(letUserSelectDevice)
 	}
 }
 
