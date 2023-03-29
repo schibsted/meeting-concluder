@@ -61,3 +61,10 @@ Outline of the soure files, functions and types for this project:
 ```
 
 # The project currently compiles, but is a work in progress. All the files should be looked upon as placeholder files.
+
+# Requirements
+
+* ffmpeg
+* The go compiler
+* A working microphone
+* An OpenAI API key set in the `OPENAI_KEY` environment variable.
