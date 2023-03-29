@@ -2,55 +2,65 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"os"
 
-	"github.com/google/go-querystring/query"
-	"github.com/xyproto/env/v2"
+	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
 const (
-	apiKEy      = env.StrAlt("OPENAI_API_KEY", "OPENAI_KEY", env.Str("CHATGPT_API_KEY"))
-	whisperURL  = "https://api.openai.com/v1/whisper/asr"
-	wavFilePath = "output.wav"
+	whisperURL  = "https://api.openai.com/v1/audio/transcriptions"
+	mp4FilePath = "output.mp4"
 )
-
-type AsrParams struct {
-	Engine string `url:"engine"`
-}
 
 type AsrResponse struct {
 	Transcript string `json:"transcript"`
 }
 
 func main() {
-	// Read the WAV file
-	wavData, err := ioutil.ReadFile(wavFilePath)
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	file, err := os.Open(mp4FilePath)
 	if err != nil {
-		fmt.Printf("Error reading WAV file: %v\n", err)
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+	part, err := writer.CreateFormFile("file", mp4FilePath)
+	if err != nil {
+		fmt.Printf("Error creating form file: %v\n", err)
+		return
+	}
+	_, err = io.Copy(part, file)
+	if err != nil {
+		fmt.Printf("Error copying file contents: %v\n", err)
+		return
+	}
+	err = writer.WriteField("model", "whisper-1")
+	if err != nil {
+		fmt.Printf("Error writing form field: %v\n", err)
+		return
+	}
+	err = writer.Close()
+	if err != nil {
+		fmt.Printf("Error closing multipart writer: %v\n", err)
 		return
 	}
 
-	// Prepare the API request
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", whisperURL, bytes.NewReader(wavData))
+	req, err := http.NewRequest("POST", whisperURL, body)
 	if err != nil {
 		fmt.Printf("Error creating API request: %v\n", err)
 		return
 	}
 
-	// Set the required headers
-	req.Header.Set("Content-Type", "audio/wav")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", concluder.Config.OpenAI_APIKey))
 
-	// Add the query parameters
-	params := AsrParams{Engine: "whisper-asr"}
-	q, _ := query.Values(params)
-	req.URL.RawQuery = q.Encode()
-
-	// Send the API request
+	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Error sending API request: %v\n", err)
@@ -58,20 +68,16 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	// Check if the request was successful
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading API response: %v\n", err)
+		return
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		fmt.Printf("Error: %s\n", resp.Status)
 		return
 	}
 
-	// Parse the API response
-	var asrResponse AsrResponse
-	err = json.NewDecoder(resp.Body).Decode(&asrResponse)
-	if err != nil {
-		fmt.Printf("Error decoding API response: %v\n", err)
-		return
-	}
-
-	// Print the transcript
-	fmt.Printf("Transcript: %s\n", asrResponse.Transcript)
+	fmt.Printf("Transcript: %s\n", string(responseBody))
 }
