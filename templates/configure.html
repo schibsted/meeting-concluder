@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configure Slack Integration</title>
+</head>
+<body>
+    <h1>Configure Slack Integration</h1>
+    <form action="/configure" method="POST">
+        <label for="channel">Slack channel:</label>
+        <input type="text" id="channel" name="channel" value="{{ .SlackChannel }}">
+        <br>
+        <label for="api-key">Slack API key:</label>
+        <input type="text" id="api-key" name="api-key" value="{{ .SlackAPIKey }}">
+        <br>
+        <input type="submit" value="Save Configuration">
+    </form>
+</body>
+</html>
