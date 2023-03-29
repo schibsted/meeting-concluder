@@ -59,3 +59,5 @@ Outline of the soure files, functions and types for this project:
         summary.html
         configure.html
 ```
+
+# The project currently compiles, but is a work in progress. All the files should be looked upon as placeholder files.
