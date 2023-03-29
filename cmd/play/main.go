@@ -6,21 +6,11 @@ import (
 	"os/exec"
 )
 
-const inputFile = "input.wav"
-
 func main() {
-	// Check if input file exists
-	_, err := os.Stat(inputFile)
-	if os.IsNotExist(err) {
-		fmt.Printf("Error: %s does not exist\n", inputFile)
-		os.Exit(1)
-	}
-
-	// Play audio file
+	const inputFile = "input.wav"
 	fmt.Printf("Playing %s...\n", inputFile)
 	cmd := exec.Command("afplay", inputFile)
-	err = cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		fmt.Println("Error playing audio:", err)
 		os.Exit(1)
 	}

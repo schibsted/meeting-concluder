@@ -21,10 +21,7 @@ func main() {
 		return
 	}
 
-	if !strings.HasSuffix(conclusion, "\n") {
-		conclusion += "\n"
-	}
-
+	conclusion += "\n"
 	fmt.Print(conclusion)
 
 	err = ioutil.WriteFile("output.txt", []byte(conclusion), 0o644)

@@ -18,7 +18,6 @@ func main() {
 	}
 
 	transcript += "\n"
-
 	fmt.Printf("%s\n", transcript)
 
 	if err := os.WriteFile("output.txt", []byte(transcript), 0o644); err != nil {
