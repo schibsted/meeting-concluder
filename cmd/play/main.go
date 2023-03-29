@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-const inputFile = "output.wav"
+const inputFile = "input.wav"
 
 func main() {
 	// Check if input file exists
