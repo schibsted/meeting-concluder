@@ -24,7 +24,15 @@ func main() {
 	router.Use(middleware.Recoverer)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
+		http.ServeFile(w, r, "static/index.html")
+	})
+
+	router.Get("/main.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/main.js")
+	})
+
+	router.Get("/tailwind-3.3.0.min.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/tailwind-3.3.0.min.css")
 	})
 
 	router.Post("/record", func(w http.ResponseWriter, r *http.Request) {
@@ -47,8 +55,9 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{"summary": summary})
 	})
 
-	fs := http.FileServer(http.Dir("static"))
-	router.Handle("/static/*", http.StripPrefix("/static/", fs))
+	//fs := http.FileServer(http.Dir("static"))
+	//router.Handle("/css/*.css", http.StripPrefix("/static/", fs))
+	//router.Handle("/js/*.js", http.StripPrefix("/static/", fs))
 
 	addr := env.Str("HOST", ":3000")
 
