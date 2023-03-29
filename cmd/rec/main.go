@@ -8,9 +8,12 @@ import (
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
-func main() {
-	const wavFilename = "output.wav"
+const (
+	wavFilename   = "output.wav"
+	clapDetection = true
+)
 
+func main() {
 	// Initialize the AudioRecorder from the concluder package
 	audioRecorder := concluder.NewAudioRecorder()
 	defer audioRecorder.Done()
@@ -22,7 +25,7 @@ func main() {
 	}
 
 	// Record audio to the specified file
-	if err := audioRecorder.RecordToFile(wavFilename, 10*time.Second); err != nil {
+	if err := audioRecorder.RecordToFile(wavFilename, 10*time.Second, clapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}

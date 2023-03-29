@@ -249,14 +249,16 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 	}
 }
 
-func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration) error {
+func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, clapDetection bool) error {
 	a.StartRecording()
 	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or clap...")
 	time.AfterFunc(maxDuration, func() {
 		a.StopRecording()
 	})
 
-	go a.ListenForClapSoundToStopRecording()
+	if clapDetection {
+		go a.ListenForClapSoundToStopRecording()
+	}
 	a.WaitForRecordingToStop()
 
 	if err := a.SaveWav(wavFilename); err != nil {
