@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
@@ -23,29 +21,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Start recording
-	audioRecorder.StartRecording()
-
-	// Set up a channel to listen for interrupt signals
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-
-	// Record for 10 seconds or until Ctrl-C is pressed
-	fmt.Println("Recording for 10 seconds or until Ctrl-C is pressed...")
-	select {
-	case <-time.After(10 * time.Second):
-	case <-signalChan:
-		fmt.Println("\nCtrl-C received, stopping recording.")
-	}
-
-	// Stop recording
-	audioRecorder.StopRecording()
-
-	// Save the recorded data to a .wav file
-	if err := audioRecorder.SaveWav(wavFilename); err != nil {
-		fmt.Printf("Error saving %s file: %v", wavFilename, err)
+	// Record audio to the specified file
+	if err := audioRecorder.RecordToFile(wavFilename, 10*time.Second); err != nil {
+		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}
-
-	fmt.Printf("Audio saved to %s\n", wavFilename)
 }

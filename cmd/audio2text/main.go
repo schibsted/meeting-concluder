@@ -17,7 +17,9 @@ func main() {
 		return
 	}
 
-	fmt.Printf("%s\n", strings.TrimSpace(transcript))
+	transcript += "\n"
+
+	fmt.Printf("%s\n", transcript)
 
 	if err := os.WriteFile("output.txt", []byte(transcript), 0o644); err != nil {
 		fmt.Printf("Error writing to output.txt: %v\n", err)
