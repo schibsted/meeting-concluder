@@ -1,33 +1,37 @@
 package concluder
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
-
-	"github.com/slack-go/slack"
 )
 
-type SlackClient struct {
-	client  *slack.Client
-	channel string
-}
-
-func NewSlackClient(slackToken, slackChannel string) *SlackClient {
-	return &SlackClient{
-		client:  slack.New(slackToken),
-		channel: slackChannel,
+func SendMessage(message string) error {
+	payload := map[string]interface{}{
+		"text": message,
 	}
-}
 
-func (sc *SlackClient) SendMessage(channel, message string) error {
-	if channel == "" {
-		channel = sc.channel
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return err
 	}
-	_, _, err := sc.client.PostMessage(channel, slack.MsgOptionText(message, false))
-	return err
+
+	resp, err := http.Post(Config.Slack_Webhook, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to send message to Slack, status code: %d", resp.StatusCode)
+	}
+
+	return nil
 }
 
-func (sc *SlackClient) SendMeetingConclusion(conclusion string, startTime time.Time, duration time.Duration) error {
+func SendMeetingConclusion(conclusion string, startTime time.Time, duration time.Duration) error {
 	message := fmt.Sprintf("Meeting conclusion for %s (Duration: %v):\n%s", startTime.Format("2006-01-02 15:04:05"), duration, conclusion)
-	return sc.SendMessage(sc.channel, message)
+	return SendMessage(message)
 }
