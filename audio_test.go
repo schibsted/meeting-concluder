@@ -7,6 +7,8 @@ import (
 
 func TestInputDevices(t *testing.T) {
 	a := NewAudioRecorder()
+	defer a.Done()
+
 	inputDevices, err := a.InputDevices()
 	if err != nil {
 		t.Fatalf("InputDevices() returned an error: %v", err)

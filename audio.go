@@ -22,6 +22,7 @@ type AudioRecorder struct {
 	recording           bool
 	mutex               sync.RWMutex
 	selectedInputDevice *portaudio.DeviceInfo
+	stopRecordingCh     chan struct{}
 }
 
 var initializedAudio bool
@@ -34,7 +35,9 @@ func NewAudioRecorder() *AudioRecorder {
 		}
 		initializedAudio = true
 	}
-	return &AudioRecorder{}
+	var audioRecorder AudioRecorder
+	audioRecorder.stopRecordingCh = make(chan struct{})
+	return &audioRecorder
 }
 
 func (a *AudioRecorder) Done() {
@@ -113,17 +116,14 @@ func (a *AudioRecorder) StartRecording() {
 
 	a.stream = stream
 	a.recording = true
+	a.stopRecordingCh = make(chan struct{}) // Create a channel for notifying if the recording has stopped
 
 	log.Println("Started audio recording.")
 }
 
 func (a *AudioRecorder) WaitForRecordingToStop() {
-	// TODO: Use a channel instead
-	for a.recording {
-		a.mutex.RLock()
-		time.Sleep(200 * time.Millisecond)
-		a.mutex.RUnlock()
-	}
+	// Wait for the stop signal from the channel
+	<-a.stopRecordingCh
 }
 
 func (a *AudioRecorder) StopRecording() {
@@ -137,7 +137,9 @@ func (a *AudioRecorder) StopRecording() {
 	a.recording = false
 	a.stream.Stop()
 	a.stream.Close()
-	portaudio.Terminate()
+	//portaudio.Terminate()
+
+	close(a.stopRecordingCh) // Close the channel to signal that recording has stopped
 
 	log.Println("Stopped audio recording.")
 }
