@@ -15,4 +15,5 @@ cmd/web/web
 include.txt
 
 # Audio-related
-*.wav
+#*.wav
+#*.mp4
