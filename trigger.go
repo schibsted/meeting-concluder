@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+// THIS FILE IS A WORK IN PROGRESS
+//
+// Calling the whisper API often enough to be able to pick up trigger words at
+// the end of the audio recording is probably not a good idea.
+
 func (a *AudioRecorder) ListenForTriggerWordToStopRecording() error {
 	const triggerWavFilename = "/tmp/trigger.wav"
 	const triggerWord = "captain"
