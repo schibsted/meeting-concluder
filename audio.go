@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/go-audio/audio"
 	"github.com/go-audio/wav"
@@ -15,9 +17,11 @@ import (
 )
 
 type AudioRecorder struct {
-	stream    *portaudio.Stream
-	buffer    bytes.Buffer
-	recording bool
+	stream              *portaudio.Stream
+	buffer              bytes.Buffer
+	recording           bool
+	mutex               sync.RWMutex
+	selectedInputDevice *portaudio.DeviceInfo
 }
 
 var initializedAudio bool
@@ -53,10 +57,10 @@ func (a *AudioRecorder) InputDevices() ([]*portaudio.DeviceInfo, error) {
 	return inputDevices, nil
 }
 
-func (a *AudioRecorder) UserSelectsTheInputDevice() (*portaudio.DeviceInfo, error) {
+func (a *AudioRecorder) UserSelectsTheInputDevice() error {
 	devices, err := a.InputDevices()
 	if err != nil {
-		return nil, fmt.Errorf("Error fetching PortAudio input devices: %v", err)
+		return fmt.Errorf("Error fetching PortAudio input devices: %v", err)
 	}
 	for i, dev := range devices {
 		fmt.Printf("%d: %s\n", i+1, dev.Name)
@@ -66,29 +70,33 @@ func (a *AudioRecorder) UserSelectsTheInputDevice() (*portaudio.DeviceInfo, erro
 	fmt.Print("Select audio device number: ")
 	_, err = fmt.Scanln(&selection)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read user input: %v", err)
+		return fmt.Errorf("failed to read user input: %v", err)
 	}
 	if selection < 1 || selection > len(devices) {
-		return nil, errors.New("invalid device selection")
+		return errors.New("invalid device selection")
 	}
-	return devices[selection-1], nil
+	a.selectedInputDevice = devices[selection-1]
+	return nil
 }
 
-func (a *AudioRecorder) StartRecording(inputDevice *portaudio.DeviceInfo) {
+func (a *AudioRecorder) StartRecording() {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	if a.recording {
 		log.Println("Audio recording is already in progress.")
 		return
 	}
 
-	if inputDevice == nil {
+	if a.selectedInputDevice == nil {
 		var err error
-		inputDevice, err = portaudio.DefaultInputDevice()
+		a.selectedInputDevice, err = portaudio.DefaultInputDevice()
 		if err != nil {
 			log.Fatal("Error fetching default input device:", err)
 		}
 	}
 
-	parameters := portaudio.LowLatencyParameters(inputDevice, nil)
+	parameters := portaudio.LowLatencyParameters(a.selectedInputDevice, nil)
 	parameters.Input.Channels = 1
 	parameters.SampleRate = 16000
 	parameters.FramesPerBuffer = 1024
@@ -105,10 +113,22 @@ func (a *AudioRecorder) StartRecording(inputDevice *portaudio.DeviceInfo) {
 
 	a.stream = stream
 	a.recording = true
+
 	log.Println("Started audio recording.")
 }
 
+func (a *AudioRecorder) WaitForRecordingToStop() {
+	for a.recording {
+		a.mutex.RLock()
+		time.Sleep(200 * time.Millisecond)
+		a.mutex.RUnlock()
+	}
+}
+
 func (a *AudioRecorder) StopRecording() {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	if !a.recording {
 		return
 	}

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
@@ -12,20 +14,26 @@ func main() {
 	// Initialize the AudioRecorder from the concluder package
 	audioRecorder := concluder.NewAudioRecorder()
 
-	// Start recording
-	const userSelectsDevice = true
-
-	device, err := audioRecorder.UserSelectsTheInputDevice()
-	if err != nil {
+	// Let the user select an input device through a CLI menu
+	if err := audioRecorder.UserSelectsTheInputDevice(); err != nil {
 		fmt.Println("Error letting the user select an input device")
 		os.Exit(1)
 	}
 
-	audioRecorder.StartRecording(device)
+	// Start recording
+	audioRecorder.StartRecording()
 
-	// Record for 5 seconds
-	fmt.Println("Recording for 5 seconds...")
-	time.Sleep(5 * time.Second)
+	// Set up a channel to listen for interrupt signals
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+
+	// Record for 10 seconds or until Ctrl-C is pressed
+	fmt.Println("Recording for 10 seconds or until Ctrl-C is pressed...")
+	select {
+	case <-time.After(10 * time.Second):
+	case <-signalChan:
+		fmt.Println("\nCtrl-C received, stopping recording.")
+	}
 
 	// Stop recording
 	audioRecorder.StopRecording()
