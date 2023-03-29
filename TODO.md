@@ -1,4 +1,4 @@
 # Plans
 
-- [ ] Stop recording if "captain" is heard.
-- [ ] Improve or rewrite the web interface.
+- [ ] When transcribing audio, send it in batches of 25MB.
+- [ ] Improve and refactor the web interface.
