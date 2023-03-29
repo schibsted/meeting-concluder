@@ -11,8 +11,11 @@ import (
 )
 
 func main() {
+	const wavFilename = "output.wav"
+
 	// Initialize the AudioRecorder from the concluder package
 	audioRecorder := concluder.NewAudioRecorder()
+	defer audioRecorder.Done()
 
 	// Let the user select an input device through a CLI menu
 	if err := audioRecorder.UserSelectsTheInputDevice(); err != nil {
@@ -39,10 +42,10 @@ func main() {
 	audioRecorder.StopRecording()
 
 	// Save the recorded data to a .wav file
-	if err := audioRecorder.SaveWav("output.wav"); err != nil {
-		fmt.Println("Error saving .wav file:", err)
+	if err := audioRecorder.SaveWav(wavFilename); err != nil {
+		fmt.Printf("Error saving %s file: %v", wavFilename, err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Audio saved to output.wav")
+	fmt.Printf("Audio saved to %s\n", wavFilename)
 }
