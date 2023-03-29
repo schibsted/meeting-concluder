@@ -20,28 +20,40 @@ type AudioRecorder struct {
 	recording bool
 }
 
+var initializedAudio bool
+
 func NewAudioRecorder() *AudioRecorder {
+	if !initializedAudio {
+		err := portaudio.Initialize()
+		if err != nil {
+			log.Fatal("Error initializing PortAudio:", err)
+		}
+		initializedAudio = true
+	}
 	return &AudioRecorder{}
 }
 
-func (a *AudioRecorder) InputDevices() ([]*portaudio.DeviceInfo, error) {
+func (a *AudioRecorder) Done() {
+	if initializedAudio {
+		portaudio.Terminate()
+	}
+}
 
+func (a *AudioRecorder) InputDevices() ([]*portaudio.DeviceInfo, error) {
 	devices, err := portaudio.Devices()
 	if err != nil {
 		return nil, err
 	}
-
 	inputDevices := []*portaudio.DeviceInfo{}
 	for _, device := range devices {
 		if device.MaxInputChannels > 0 {
 			inputDevices = append(inputDevices, device)
 		}
 	}
-
 	return inputDevices, nil
 }
 
-func (a *AudioRecorder) UserSelectsInputDeviceByCLI() (*portaudio.DeviceInfo, error) {
+func (a *AudioRecorder) UserSelectsTheInputDevice() (*portaudio.DeviceInfo, error) {
 	devices, err := a.InputDevices()
 	if err != nil {
 		return nil, fmt.Errorf("Error fetching PortAudio input devices: %v", err)
@@ -49,6 +61,7 @@ func (a *AudioRecorder) UserSelectsInputDeviceByCLI() (*portaudio.DeviceInfo, er
 	for i, dev := range devices {
 		fmt.Printf("%d: %s\n", i+1, dev.Name)
 	}
+
 	selection := 0
 	fmt.Print("Select audio device number: ")
 	_, err = fmt.Scanln(&selection)
@@ -67,12 +80,8 @@ func (a *AudioRecorder) StartRecording(inputDevice *portaudio.DeviceInfo) {
 		return
 	}
 
-	err := portaudio.Initialize()
-	if err != nil {
-		log.Fatal("Error initializing PortAudio:", err)
-	}
-
 	if inputDevice == nil {
+		var err error
 		inputDevice, err = portaudio.DefaultInputDevice()
 		if err != nil {
 			log.Fatal("Error fetching default input device:", err)
