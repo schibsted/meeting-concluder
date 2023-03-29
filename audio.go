@@ -35,9 +35,7 @@ func NewAudioRecorder() *AudioRecorder {
 		}
 		initializedAudio = true
 	}
-	var audioRecorder AudioRecorder
-	audioRecorder.stopRecordingCh = make(chan struct{})
-	return &audioRecorder
+	return &AudioRecorder{}
 }
 
 func (a *AudioRecorder) Done() {
@@ -90,6 +88,8 @@ func (a *AudioRecorder) StartRecording() {
 		log.Println("Audio recording is already in progress.")
 		return
 	}
+
+	a.stopRecordingCh = make(chan struct{})
 
 	if a.selectedInputDevice == nil {
 		var err error
@@ -247,4 +247,22 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 		}
 		buf.Data = append(buf.Data, int(sample))
 	}
+}
+
+func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration) error {
+	a.StartRecording()
+	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or clap...")
+	time.AfterFunc(maxDuration, func() {
+		a.StopRecording()
+	})
+
+	go a.ListenForClapSoundToStopRecording()
+	a.WaitForRecordingToStop()
+
+	if err := a.SaveWav(wavFilename); err != nil {
+		return fmt.Errorf("Error saving %s file: %v", wavFilename, err)
+	}
+
+	fmt.Printf("Audio saved to %s\n", wavFilename)
+	return nil
 }

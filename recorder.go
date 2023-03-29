@@ -9,9 +9,6 @@ import (
 )
 
 func (audioRecorder *AudioRecorder) RecordTranscribeConvertConcludePost(stopRecordingCh <-chan struct{}) (string, error) {
-	// Create a channel to signal that the recording has stopped
-	recordingStoppedCh := make(chan struct{})
-
 	// Create temporary files for wav and mp4
 	wavFile, err := ioutil.TempFile("", "input-*.wav")
 	if err != nil {
@@ -25,29 +22,9 @@ func (audioRecorder *AudioRecorder) RecordTranscribeConvertConcludePost(stopReco
 	}
 	defer os.Remove(mp4File.Name())
 
-	// Record audio
-	audioRecorder.StartRecording()
-	fmt.Println("Recording, press Ctrl+C to stop or wait for 1 hour...")
-	time.AfterFunc(1*time.Hour, func() {
-		audioRecorder.StopRecording()
-	})
-
-	go func() {
-		select {
-		case <-stopRecordingCh:
-			audioRecorder.StopRecording()
-		case <-recordingStoppedCh:
-			return
-		}
-	}()
-
-	go audioRecorder.ListenForClapSoundToStopRecording()
-
-	audioRecorder.WaitForRecordingToStop()
-	close(recordingStoppedCh)
-
-	if err := audioRecorder.SaveWav(wavFile.Name()); err != nil {
-		return "", fmt.Errorf("error saving .wav file: %v", err)
+	// Record audio to wav, up to 1 hour
+	if err := audioRecorder.RecordToFile(wavFile.Name(), 1*time.Hour); err != nil {
+		return "", fmt.Errorf("error recording to %s: %v", wavFile.Name(), err)
 	}
 
 	// Convert audio from wav to mp4
