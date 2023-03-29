@@ -8,29 +8,36 @@ import (
 	"time"
 )
 
-func (audioRecorder *AudioRecorder) RecordTranscribeConvertConcludePost(stopRecordingCh <-chan struct{}, clapDetection bool) (string, error) {
-	// Create temporary files for wav and mp4
+func (audioRecorder *AudioRecorder) RecordAudio(clapDetection bool, maxRecord time.Duration) (string, error) {
+	// Create temporary file for wav
 	wavFile, err := ioutil.TempFile("", "input-*.wav")
 	if err != nil {
 		return "", fmt.Errorf("error creating temporary .wav file: %v", err)
 	}
-	defer os.Remove(wavFile.Name())
 
+	// Record audio to wav, up to maxRecord duration
+	if err := audioRecorder.RecordToFile(wavFile.Name(), maxRecord, clapDetection); err != nil {
+		os.Remove(wavFile.Name())
+		return "", fmt.Errorf("error recording to %s: %v", wavFile.Name(), err)
+	}
+
+	return wavFile.Name(), nil
+}
+
+func (audioRecorder *AudioRecorder) TranscribeConvertConcludePost(wavFileName string) (string, error) {
+	// Create temporary file for mp4
 	mp4File, err := ioutil.TempFile("", "input-*.mp4")
 	if err != nil {
+		os.Remove(wavFileName)
 		return "", fmt.Errorf("error creating temporary .mp4 file: %v", err)
 	}
 	defer os.Remove(mp4File.Name())
 
-	// Record audio to wav, up to 1 hour
-	if err := audioRecorder.RecordToFile(wavFile.Name(), 1*time.Hour, clapDetection); err != nil {
-		return "", fmt.Errorf("error recording to %s: %v", wavFile.Name(), err)
-	}
-
 	// Convert audio from wav to mp4
-	err = convertToMP4(wavFile.Name(), mp4File.Name())
+	err = convertToMP4(wavFileName, mp4File.Name())
+	os.Remove(wavFileName)
 	if err != nil {
-		return "", fmt.Errorf("error converting %s to %s: %v", wavFile.Name(), mp4File.Name(), err)
+		return "", fmt.Errorf("error converting %s to %s: %v", wavFileName, mp4File.Name(), err)
 	}
 
 	// Transcribe the audio
