@@ -7,13 +7,10 @@ import (
 )
 
 func main() {
-	slackWebhook := concluder.NewSlackWebhook()
-
-	err := slackWebhook.SendMessage("hello")
+	err := concluder.SendMessage("hello")
 	if err != nil {
 		fmt.Printf("Error sending message to Slack channel: %v\n", err)
 		return
 	}
-
 	fmt.Println("Message sent to Slack channel successfully.")
 }
