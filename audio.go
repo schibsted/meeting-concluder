@@ -8,8 +8,8 @@ import (
 )
 
 type AudioRecorder struct {
-	stream   *portaudio.Stream
-	buffer   bytes.Buffer
+	stream    *portaudio.Stream
+	buffer    bytes.Buffer
 	recording bool
 }
 
