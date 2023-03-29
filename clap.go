@@ -8,11 +8,11 @@ import (
 )
 
 func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
-	audioLength := 3 * time.Second
-	loopSleep := 100 * time.Millisecond
+	audioLength := 1 * time.Second
+	loopSleep := 50 * time.Millisecond
 
 	// Clap detection parameters
-	energyThreshold := 5000.0 // Adjust this value based on the sensitivity you want
+	energyThreshold := 3000.0 // Adjust this value based on the sensitivity you want
 	windowSize := 1024        // Size of the sliding window used for energy calculation
 
 	for a.recording {
