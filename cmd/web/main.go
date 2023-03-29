@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"text/template"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,15 +26,24 @@ func main() {
 	router.Use(middleware.Recoverer)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/index.html")
+		indexTemplate := template.Must(template.ParseFiles("static/index.html"))
+		slackChannel := os.Getenv("SLACK_CHANNEL")
+		slackAPIKey := os.Getenv("SLACK_API_KEY")
+		openAIAPIKey := os.Getenv("OPENAI_API_KEY")
+		data := struct {
+			SlackChannel string
+			SlackAPIKey  string
+			OpenAIAPIKey string
+		}{slackChannel, slackAPIKey, openAIAPIKey}
+		indexTemplate.Execute(w, data)
 	})
 
 	router.Get("/main.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/main.js")
 	})
 
-	router.Get("/tailwind-3.3.0.min.css", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/tailwind-3.3.0.min.css")
+	router.Get("/tailwind-3.3.0.min.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/tailwind-3.3.0.min.js")
 	})
 
 	router.Post("/record", func(w http.ResponseWriter, r *http.Request) {

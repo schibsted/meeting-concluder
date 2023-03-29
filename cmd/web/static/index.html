@@ -3,21 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Recorder</title>
-  <link href="tailwind-3.3.0.min.css" rel="stylesheet">
-  <script src="main.js" defer></script>
+  <title>Meeting Concluder</title>
+  <script src="/main.js" defer></script>
+  <script src="/tailwind-3.3.0.min.js" defer></script>
 </head>
-<body class="bg-gray-100">
-  <div class="container mx-auto px-4 py-16">
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <h1 class="text-2xl font-bold mb-6">Record Audio</h1>
-      <div class="space-y-4">
-        <input id="slack-channel" class="w-full p-2 border rounded" type="text" placeholder="Slack Channel">
-        <input id="slack-api-key" class="w-full p-2 border rounded" type="text" placeholder="Slack API Key">
-        <input id="openai-api-key" class="w-full p-2 border rounded" type="text" placeholder="OpenAI API Key">
-        <button id="record-btn" class="w-full p-2 bg-blue-500 text-white rounded">Record</button>
-      </div>
-    </div>
-  </div>
+<body class="bg-gray-100"
+  data-slack-channel="{{.SlackChannel}}"
+  data-slack-api-key="{{.SlackAPIKey}}"
+  data-openai-api-key="{{.OpenAIAPIKey}}">
+   <div class="container mx-auto px-4 py-16">
+     <div class="bg-white rounded-lg shadow-lg p-6">
+       <h1 class="text-3xl font-bold mb-6">Meeting Concluder</h1>
+       <div class="space-y-4">
+        {{if not .SlackChannel}}<input id="slack-channel" class="w-full p-2 border rounded" type="text" placeholder="Slack Channel">{{end}}
+        {{if not .SlackAPIKey}}<input id="slack-api-key" class="w-full p-2 border rounded" type="text" placeholder="Slack API Key">{{end}}
+        {{if not .OpenAIAPIKey}}<input id="openai-api-key" class="w-full p-2 border rounded" type="text" placeholder="OpenAI API Key">{{end}}
+        <button id="record-btn" class="w-full p-2 bg-blue-500 text-white rounded transition duration-300 ease-in-out">
+          Record
+        </button>
+       </div>
+       <div id="result-message" class="mt-4 text-center"></div>
+       <div id="summary" class="mt-6 bg-gray-100 p-4 border rounded-lg"></div>
+     </div>
+   </div>
 </body>
 </html>
