@@ -64,8 +64,9 @@ Outline of the soure files, functions and types for this project:
 
 # Requirements
 
-* ffmpeg
-* The go compiler
-* A working microphone
+* The `ffmpeg` command line utility (available in Homebrew).
+* The Go compiler.
+* A working microphone.
 * An OpenAI API key set in the `OPENAI_KEY` environment variable.
-* A Slack API key set in the correct environment variable.
+* A Slack API key set in the `SLACK_API_KEY` environment variable.
+* A Slack channel name set in the `SLACK_CHANNEL` environment variable.
