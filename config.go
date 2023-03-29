@@ -23,14 +23,14 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error getting user's home directory: %v", err)
 	}
+
 	configPath := filepath.Join(usr.HomeDir, ".config", "concluder.toml")
 	data, err := os.ReadFile(configPath)
-	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
-	}
-	err = toml.Unmarshal(data, &Config)
-	if err != nil {
-		log.Fatalf("Error unmarshaling TOML: %v", err)
+	if err == nil {
+		err = toml.Unmarshal(data, &Config)
+		if err != nil {
+			log.Fatalf("Error unmarshaling TOML: %v\n", err)
+		}
 	}
 
 	if val := env.StrAlt("OPENAI_API_KEY", "OPENAI_KEY", ""); val != "" {
@@ -41,9 +41,9 @@ func init() {
 	}
 
 	if Config.Slack_Webhook == "" {
-		log.Println("openai_api_key can be set in ~/.config/concluder.toml or as $OPENAI_API_KEY")
+		log.Println("WARNING: openai_api_key must be set in ~/.config/concluder.toml or as $OPENAI_API_KEY or $OPENAI_KEY")
 	}
 	if Config.Slack_Webhook == "" {
-		log.Println("slack_webhook can be set in ~/.config/concluder.toml or as $SLACK_WEBHOOK_URL")
+		log.Println("WARNING: slack_webhook must be set in ~/.config/concluder.toml or as $SLACK_WEBHOOK_URL")
 	}
 }
