@@ -1,55 +1,63 @@
-const body = document.body;
-const slackChannelEnv = body.getAttribute("data-slack-channel");
-const slackAPIKeyEnv = body.getAttribute("data-slack-api-key");
-const openAIAPIKeyEnv = body.getAttribute("data-openai-api-key");
+document.getElementById("recordButton").addEventListener("click", async () => {
+  const recordButton = document.getElementById("recordButton");
+  const stopButton = document.getElementById("stopButton");
+  const errorElement = document.getElementById("error");
+  const summaryElement = document.getElementById("summary");
 
-document.getElementById("record-btn").addEventListener("click", async () => {
-    const resultMessage = document.getElementById("result-message").value;
-    const slackChannel =
-        document.getElementById("slack-channel").value || slackChannelEnv;
-    const slackAPIKey =
-        document.getElementById("slack-api-key").value || slackAPIKeyEnv;
-    const openAIAPIKey =
-        document.getElementById("openai-api-key").value || openAIAPIKeyEnv;
+  recordButton.classList.add("hidden");
+  stopButton.classList.remove("hidden");
+  errorElement.classList.add("hidden");
+  summaryElement.textContent = "";
 
-    const recordRequest = {
-        slack_channel: slackChannel,
-        slack_api_key: slackAPIKey,
-        openai_api_key: openAIAPIKey,
-    };
+  const clapDetection = window.ClapDetection;
+  const maxDuration = window.MaxDuration;
 
-    try {
-        const recordBtn = document.getElementById("record-btn");
-        recordBtn.classList.add("bg-red-500", "animate-pulse");
-        recordBtn.classList.remove("bg-green-500");
-        recordBtn.textContent = "Recording...";
+  try {
+    const response = await fetch("/record/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ClapDetection: clapDetection, MaxDuration: maxDuration }),
+    });
 
-        const response = await fetch("/record", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(recordRequest),
-        });
-
-        const resultMessage = document.getElementById("result-message");
-        if (response.ok) {
-            resultMessage.textContent = "Summary sent to Slack.";
-            resultMessage.classList.remove("text-red-500");
-            resultMessage.classList.add("text-green-500");
-        } else {
-            resultMessage.textContent = `Error: ${response.status} - ${response.statusText}`;
-            resultMessage.classList.remove("text-green-500");
-            resultMessage.classList.add("text-red-500");
-        }
-    } catch (error) {
-        resultMessage.textContent = `Error: ${error.message}`;
-        resultMessage.classList.remove("text-green-500");
-        resultMessage.classList.add("text-red-500");
-    } finally {
-        const recordBtn = document.getElementById("record-btn");
-        recordBtn.classList.add("bg-green-500");
-        recordBtn.classList.remove("bg-red-500", "animate-pulse");
-        recordBtn.textContent = "Record";
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
+
+    const result = await response.json();
+    summaryElement.textContent = `Recorded for ${result.duration.toFixed(2)} seconds.`;
+  } catch (error) {
+    console.error(error);
+    errorElement.textContent = `Error: ${error.message}`;
+    errorElement.classList.remove("hidden");
+  }
+});
+
+document.getElementById("stopButton").addEventListener("click", async () => {
+  const recordButton = document.getElementById("recordButton");
+  const stopButton = document.getElementById("stopButton");
+  const errorElement = document.getElementById("error");
+  const summaryElement = document.getElementById("summary");
+
+  recordButton.classList.remove("hidden");
+  stopButton.classList.add("hidden");
+  errorElement.classList.add("hidden");
+
+  try {
+    const response = await fetch("/record/stop", {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    summaryElement.textContent += ` Transcription: ${result.transcription}`;
+  } catch (error) {
+    console.error(error);
+    errorElement.textContent = `Error: ${error.message}`;
+    errorElement.classList.remove("hidden");
+  }
 });

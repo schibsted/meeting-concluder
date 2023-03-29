@@ -1,30 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meeting Concluder</title>
-  <script src="/main.js" defer></script>
-  <script src="/tailwind-3.3.0.min.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+    <script src="tailwind-3.3.0.min.js"></script>
 </head>
-<body class="bg-gray-100"
-  data-slack-channel="{{.SlackChannel}}"
-  data-slack-api-key="{{.SlackAPIKey}}"
-  data-openai-api-key="{{.OpenAIAPIKey}}">
-   <div class="container mx-auto px-4 py-16">
-     <div class="bg-white rounded-lg shadow-lg p-6">
-       <h1 class="text-3xl font-bold mb-6">Meeting Concluder</h1>
-       <div class="space-y-4">
-        {{if not .SlackChannel}}<input id="slack-channel" class="w-full p-2 border rounded" type="text" placeholder="Slack Channel">{{end}}
-        {{if not .SlackAPIKey}}<input id="slack-api-key" class="w-full p-2 border rounded" type="text" placeholder="Slack API Key">{{end}}
-        {{if not .OpenAIAPIKey}}<input id="openai-api-key" class="w-full p-2 border rounded" type="text" placeholder="OpenAI API Key">{{end}}
-        <button id="record-btn" class="w-full p-2 bg-blue-500 text-white rounded transition duration-300 ease-in-out">
-          Record
-        </button>
-       </div>
-       <div id="result-message" class="mt-4 text-center"></div>
-       <div id="summary" class="mt-6 bg-gray-100 p-4 border rounded-lg"></div>
-     </div>
-   </div>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-12">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold mb-4">Audio Recorder</h1>
+            <button id="recordButton" class="bg-green-500 text-white font-bold py-2 px-4 rounded">Start Recording</button>
+            <button id="stopButton" class="bg-red-500 text-white font-bold py-2 px-4 rounded hidden">Stop Recording</button>
+            <div class="mt-4">
+                <label for="clapDetection">Clap detection</label>
+                <input type="checkbox" id="clapDetection" name="clap_detection" />
+            </div>
+            <div class="mt-4">
+                <label for="maxDuration">Max duration (in seconds):</label>
+                <input type="number" id="maxDuration" name="max_duration" min="1" value="60" />
+            </div>
+            <p id="error" class="mt-4 text-red-600 hidden"></p>
+            <p id="summary" class="mt-4"></p>
+        </div>
+    </div>
+    <script>
+        window.ClapDetection = false;
+        window.MaxDuration = 60;
+
+        const clapDetectionInput = document.getElementById("clapDetection");
+        clapDetectionInput.addEventListener("change", (event) => {
+            window.ClapDetection = event.target.checked;
+        });
+
+        const maxDurationInput = document.getElementById("maxDuration");
+        maxDurationInput.addEventListener("input", (event) => {
+            window.MaxDuration = parseInt(event.target.value);
+        });
+    </script>
+    <script src="main.js"></script>
 </body>
 </html>

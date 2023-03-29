@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,9 +15,61 @@ import (
 )
 
 type RecordRequest struct {
-	SlackChannel string `json:"slack_channel"`
-	SlackAPIKey  string `json:"slack_api_key"`
-	OpenAIAPIKey string `json:"openai_api_key"`
+	ClapDetection bool          `json:"clap_detection"`
+	MaxDuration   time.Duration `json:"-"`
+}
+
+var stopRecordingChan chan struct{}
+var audioRecorder = concluder.NewAudioRecorder()
+
+func startRecordingHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST method required", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Create a new channel for signaling stop recording
+	stopRecordingChan = make(chan struct{})
+
+	clapDetection, _ := strconv.ParseBool(r.FormValue("clapDetection"))
+	maxDuration, _ := time.ParseDuration(r.FormValue("maxDuration"))
+
+	go func() {
+		// Record audio with given settings and wait for stop signal
+		wavFileName, err := audioRecorder.RecordAudio(clapDetection, maxDuration)
+		if err != nil {
+			log.Printf("Error recording audio: %v", err)
+			return
+		}
+		select {
+		case <-stopRecordingChan:
+			log.Println("Stopped audio recording.")
+		case <-time.After(maxDuration):
+			log.Println("Max recording duration reached.")
+		}
+		if err := os.Remove(wavFileName); err != nil {
+			log.Printf("Error removing temporary .wav file: %v", err)
+		}
+	}()
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func stopRecordingHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST method required", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if stopRecordingChan != nil {
+		close(stopRecordingChan)
+		stopRecordingChan = nil
+	} else {
+		http.Error(w, "No recording to stop", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func main() {
@@ -27,14 +79,11 @@ func main() {
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		indexTemplate := template.Must(template.ParseFiles("static/index.html"))
-		slackChannel := os.Getenv("SLACK_CHANNEL")
-		slackAPIKey := os.Getenv("SLACK_API_KEY")
-		openAIAPIKey := os.Getenv("OPENAI_API_KEY")
+		clapDetection := env.Bool("CLAP_DETECTION")
 		data := struct {
-			SlackChannel string
-			SlackAPIKey  string
-			OpenAIAPIKey string
-		}{slackChannel, slackAPIKey, openAIAPIKey}
+			ClapDetection bool
+			MaxDuration   time.Duration
+		}{clapDetection, 1 * time.Hour}
 		indexTemplate.Execute(w, data)
 	})
 
@@ -46,29 +95,8 @@ func main() {
 		http.ServeFile(w, r, "static/tailwind-3.3.0.min.js")
 	})
 
-	router.Post("/record", func(w http.ResponseWriter, r *http.Request) {
-		var req RecordRequest
-		body, _ := ioutil.ReadAll(r.Body)
-		err := json.Unmarshal(body, &req)
-
-		if err != nil {
-			http.Error(w, "Invalid request", http.StatusBadRequest)
-			return
-		}
-
-		summary, err := concluder.RecordAndConclude(req.SlackChannel, req.SlackAPIKey, req.OpenAIAPIKey)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"summary": summary})
-	})
-
-	//fs := http.FileServer(http.Dir("static"))
-	//router.Handle("/css/*.css", http.StripPrefix("/static/", fs))
-	//router.Handle("/js/*.js", http.StripPrefix("/static/", fs))
+	router.Post("/record/start", startRecordingHandler)
+	router.Post("/record/stop", stopRecordingHandler)
 
 	addr := env.Str("HOST", ":3000")
 
