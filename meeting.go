@@ -30,8 +30,7 @@ func (mc *MeetingController) StartMeeting(w http.ResponseWriter, r *http.Request
 	if !mc.meetingStarted {
 		mc.meetingStarted = true
 		mc.startTime = time.Now()
-		const letUserSelectDevice = false
-		mc.audioRecorder.StartRecording(letUserSelectDevice)
+		mc.audioRecorder.StartRecording(nil) // use the default device
 	}
 }
 

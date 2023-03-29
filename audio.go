@@ -3,6 +3,7 @@ package concluder
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -23,7 +24,44 @@ func NewAudioRecorder() *AudioRecorder {
 	return &AudioRecorder{}
 }
 
-func (a *AudioRecorder) StartRecording(userSelectsDevice bool) {
+func (a *AudioRecorder) InputDevices() ([]*portaudio.DeviceInfo, error) {
+
+	devices, err := portaudio.Devices()
+	if err != nil {
+		return nil, err
+	}
+
+	inputDevices := []*portaudio.DeviceInfo{}
+	for _, device := range devices {
+		if device.MaxInputChannels > 0 {
+			inputDevices = append(inputDevices, device)
+		}
+	}
+
+	return inputDevices, nil
+}
+
+func (a *AudioRecorder) UserSelectsInputDeviceByCLI() (*portaudio.DeviceInfo, error) {
+	devices, err := a.InputDevices()
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching PortAudio input devices: %v", err)
+	}
+	for i, dev := range devices {
+		fmt.Printf("%d: %s\n", i+1, dev.Name)
+	}
+	selection := 0
+	fmt.Print("Select audio device number: ")
+	_, err = fmt.Scanln(&selection)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read user input: %v", err)
+	}
+	if selection < 1 || selection > len(devices) {
+		return nil, errors.New("invalid device selection")
+	}
+	return devices[selection-1], nil
+}
+
+func (a *AudioRecorder) StartRecording(inputDevice *portaudio.DeviceInfo) {
 	if a.recording {
 		log.Println("Audio recording is already in progress.")
 		return
@@ -34,29 +72,11 @@ func (a *AudioRecorder) StartRecording(userSelectsDevice bool) {
 		log.Fatal("Error initializing PortAudio:", err)
 	}
 
-	inputDevice, err := portaudio.DefaultInputDevice()
-	if err != nil {
-		log.Fatal("Error fetching default input device:", err)
-	}
-
-	if userSelectsDevice {
-		devices, err := portaudio.Devices()
+	if inputDevice == nil {
+		inputDevice, err = portaudio.DefaultInputDevice()
 		if err != nil {
-			log.Fatal("Error fetching PortAudio devices:", err)
+			log.Fatal("Error fetching default input device:", err)
 		}
-		for i, dev := range devices {
-			fmt.Printf("%d: %s\n", i+1, dev.Name)
-		}
-		selection := 0
-		fmt.Print("Select audio device number: ")
-		_, err = fmt.Scanln(&selection)
-		if err != nil {
-			log.Fatalf("failed to read user input: %v", err)
-		}
-		if selection < 1 || selection > len(devices) {
-			log.Fatalf("invalid device selection")
-		}
-		inputDevice = devices[selection-1]
 	}
 
 	parameters := portaudio.LowLatencyParameters(inputDevice, nil)
