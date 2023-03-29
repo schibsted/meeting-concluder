@@ -38,7 +38,8 @@ func (mc *MeetingController) StartMeeting(w http.ResponseWriter, r *http.Request
 
 func (mc *MeetingController) StopMeeting(w http.ResponseWriter, r *http.Request) {
 	if mc.meetingStarted {
-		audioData := mc.audioRecorder.StopRecording()
+		mc.audioRecorder.StopRecording()
+		audioData := mc.audioRecorder.GetRecordedData()
 		mc.meetingStarted = false
 		transcription, err := mc.speechToText.TranscribeAudio(audioData)
 		if err != nil {

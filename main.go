@@ -37,12 +37,12 @@ func setupRoutes(config *Config) http.Handler {
 	router.Use(middleware.Recoverer)
 
 	// Set up routes
-	router.Method("GET", "/", meetingController.Index)
-	router.Method("POST", "/start", meetingController.StartMeeting)
-	router.Method("POST", "/stop", meetingController.StopMeeting)
-	router.Method("GET", "/summary", meetingController.GetSummary)
-	router.Method("POST", "/update-summary", meetingController.UpdateSummary)
-	router.Method("POST", "/configure", meetingController.ConfigureSlack)
+	router.Get("/", meetingController.Index)
+	router.Post("/start", meetingController.StartMeeting)
+	router.Post("/stop", meetingController.StopMeeting)
+	router.Get("/summary", meetingController.GetSummary)
+	router.Post("/update-summary", meetingController.UpdateSummary)
+	router.Post("/configure", meetingController.ConfigureSlack)
 
 	return router
 }
