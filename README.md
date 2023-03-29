@@ -68,3 +68,4 @@ Outline of the soure files, functions and types for this project:
 * The go compiler
 * A working microphone
 * An OpenAI API key set in the `OPENAI_KEY` environment variable.
+* A Slack API key set in the correct environment variable.
