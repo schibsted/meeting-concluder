@@ -1,4 +1,4 @@
-package main
+package concluder
 
 import (
 	"encoding/json"
@@ -82,5 +82,5 @@ func (mc *MeetingController) ConfigureSlack(w http.ResponseWriter, r *http.Reque
 }
 
 func (mc *MeetingController) Index(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/start.html")
+	http.ServeFile(w, r, "templates/index.html")
 }
