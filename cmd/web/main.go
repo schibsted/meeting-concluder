@@ -7,11 +7,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
 func main() {
 	// Create and load the configuration
-	config := NewConfig()
+	config := concluder.NewConfig()
 	config.LoadFromEnvironment()
 	config.LoadFromConfigFile("config.json")
 	config.LoadFromCommandLine(os.Args)
@@ -27,11 +28,11 @@ func main() {
 	}
 }
 
-func setupRoutes(config *Config) http.Handler {
+func setupRoutes(config *concluder.Config) http.Handler {
 	router := chi.NewRouter()
 
 	// Create MeetingController
-	meetingController := NewMeetingController(config)
+	meetingController := concluder.NewMeetingController(config)
 
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
