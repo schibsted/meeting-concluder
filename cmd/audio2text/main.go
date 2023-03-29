@@ -2,23 +2,38 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
 const (
 	whisperURL  = "https://api.openai.com/v1/audio/transcriptions"
-	mp4FilePath = "output.mp4"
+	mp4FilePath = "input.mp4"
 )
 
 type AsrResponse struct {
 	Transcript string `json:"transcript"`
+}
+
+type Response struct {
+	Text string `json:"text"`
+}
+
+func extractText(jsonStr string) (string, error) {
+	var response Response
+	err := json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return "", err
+	}
+	return response.Text, nil
 }
 
 func main() {
@@ -79,5 +94,23 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Transcript: %s\n", string(responseBody))
+	responseString := string(responseBody)
+	fmt.Printf("Response: %s\n", responseString)
+
+	transcript, err := extractText(responseString)
+	if err != nil {
+		fmt.Printf("Error parsing the response: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Transcript: %s\n", transcript)
+
+	if !strings.HasSuffix(transcript, "\n") {
+		transcript += "\n"
+	}
+
+	if err := os.WriteFile("output.txt", []byte(transcript), 0o644); err != nil {
+		fmt.Printf("Error writing to output.txt: %v\n", err)
+		return
+	}
 }
