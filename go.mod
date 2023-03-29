@@ -6,8 +6,10 @@ require (
 	github.com/go-audio/audio v1.0.0
 	github.com/go-audio/wav v1.1.0
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/google/go-querystring v1.1.0
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 	github.com/slack-go/slack v0.12.1
+	github.com/xyproto/env/v2 v2.0.0
 )
 
 require (

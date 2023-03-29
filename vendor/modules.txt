@@ -11,6 +11,9 @@ github.com/go-audio/wav
 ## explicit; go 1.14
 github.com/go-chi/chi/v5
 github.com/go-chi/chi/v5/middleware
+# github.com/google/go-querystring v1.1.0
+## explicit; go 1.10
+github.com/google/go-querystring/query
 # github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 ## explicit; go 1.18
 github.com/gordonklaus/portaudio
@@ -24,3 +27,6 @@ github.com/slack-go/slack/internal/backoff
 github.com/slack-go/slack/internal/errorsx
 github.com/slack-go/slack/internal/timex
 github.com/slack-go/slack/slackutilsx
+# github.com/xyproto/env/v2 v2.0.0
+## explicit; go 1.15
+github.com/xyproto/env/v2
