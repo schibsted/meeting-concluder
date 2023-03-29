@@ -12,9 +12,9 @@ type ChatGPT struct {
 	apiKey string
 }
 
-func NewChatGPT(config *Config) *ChatGPT {
+func NewChatGPT(apiKey string) *ChatGPT {
 	return &ChatGPT{
-		apiKey: config.ChatGPTAPIKey,
+		apiKey: apiKey,
 	}
 }
 

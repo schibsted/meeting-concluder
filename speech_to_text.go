@@ -12,9 +12,9 @@ type SpeechToText struct {
 	apiKey string
 }
 
-func NewSpeechToText(config *Config) *SpeechToText {
+func NewSpeechToText(openAIkey string) *SpeechToText {
 	return &SpeechToText{
-		apiKey: config.WhisperAPIKey,
+		apiKey: openAIkey,
 	}
 }
 

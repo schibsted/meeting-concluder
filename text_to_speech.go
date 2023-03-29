@@ -16,9 +16,9 @@ type TextToSpeech struct {
 	apiKey string
 }
 
-func NewTextToSpeech(config *Config) *TextToSpeech {
+func NewTextToSpeech(apiKey string) *TextToSpeech {
 	return &TextToSpeech{
-		apiKey: config.TextToSpeechAPIKey,
+		apiKey: apiKey,
 	}
 }
 
