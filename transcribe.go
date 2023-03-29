@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strings"
 )
 
 const whisperURL = "https://api.openai.com/v1/audio/transcriptions"
@@ -37,29 +36,29 @@ func TranscribeAudio(audioFilePath string) (string, error) {
 	writer := multipart.NewWriter(body)
 	file, err := os.Open(audioFilePath)
 	if err != nil {
-		return "", fmt.Errorf("Error opening file: %v\n", err)
+		return "", fmt.Errorf("error opening file: %v", err)
 	}
 	defer file.Close()
 	part, err := writer.CreateFormFile("file", audioFilePath)
 	if err != nil {
-		return "", fmt.Errorf("Error creating form file: %v\n", err)
+		return "", fmt.Errorf("error creating form file: %v", err)
 	}
 	_, err = io.Copy(part, file)
 	if err != nil {
-		return "", fmt.Errorf("Error copying file contents: %v\n", err)
+		return "", fmt.Errorf("error copying file contents: %v", err)
 	}
 	err = writer.WriteField("model", "whisper-1")
 	if err != nil {
-		return "", fmt.Errorf("Error writing form field: %v\n", err)
+		return "", fmt.Errorf("error writing form field: %v", err)
 	}
 	err = writer.Close()
 	if err != nil {
-		return "", fmt.Errorf("Error closing multipart writer: %v\n", err)
+		return "", fmt.Errorf("error closing multipart writer: %v", err)
 	}
 
 	req, err := http.NewRequest("POST", whisperURL, body)
 	if err != nil {
-		return "", fmt.Errorf("Error creating API request: %v\n", err)
+		return "", fmt.Errorf("error creating API request: %v", err)
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -68,26 +67,22 @@ func TranscribeAudio(audioFilePath string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("Error sending API request: %v\n", err)
+		return "", fmt.Errorf("error sending API request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error reading API response: %v\n", err)
+		return "", fmt.Errorf("error reading API response: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Error: %s\n", resp.Status)
+		return "", fmt.Errorf("error: %s", resp.Status)
 	}
 
 	transcript, err := extractText(string(responseBody))
 	if err != nil {
-		return "", fmt.Errorf("Error parsing the response: %v\n", err)
-	}
-
-	if !strings.HasSuffix(transcript, "\n") {
-		transcript += "\n"
+		return "", fmt.Errorf("error parsing the response: %v", err)
 	}
 
 	return transcript, nil
