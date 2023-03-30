@@ -7,7 +7,7 @@ import (
 
 func TestInputDevices(t *testing.T) {
 	a := NewAudioRecorder()
-	defer a.Done()
+	defer a.Terminate()
 
 	inputDevices, err := a.InputDevices()
 	if err != nil {
