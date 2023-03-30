@@ -6,7 +6,6 @@ require (
 	github.com/go-audio/audio v1.0.0
 	github.com/go-audio/wav v1.1.0
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
-	github.com/gorilla/websocket v1.5.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/pelletier/go-toml/v2 v2.0.7
 	github.com/xyproto/env/v2 v2.0.0
