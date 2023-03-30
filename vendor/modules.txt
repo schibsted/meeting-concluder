@@ -16,9 +16,6 @@ github.com/golang-jwt/jwt/v4
 # github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 ## explicit; go 1.18
 github.com/gordonklaus/portaudio
-# github.com/labstack/echo-jwt/v4 v4.1.0
-## explicit; go 1.17
-github.com/labstack/echo-jwt/v4
 # github.com/labstack/echo/v4 v4.10.2
 ## explicit; go 1.17
 github.com/labstack/echo/v4
@@ -35,6 +32,10 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.18
 ## explicit; go 1.15
 github.com/mattn/go-isatty
+# github.com/mjibson/go-dsp v0.0.0-20180508042940-11479a337f12
+## explicit
+github.com/mjibson/go-dsp/dsputils
+github.com/mjibson/go-dsp/fft
 # github.com/pelletier/go-toml/v2 v2.0.7
 ## explicit; go 1.16
 github.com/pelletier/go-toml/v2
