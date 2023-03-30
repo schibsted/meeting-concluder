@@ -42,7 +42,7 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
 
 			if energy > energyThreshold {
 				log.Println("GOT A CLAP SOUND")
-				a.StopRecording()
+				a.stopRecording()
 				return
 			}
 		}
