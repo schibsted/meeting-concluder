@@ -42,7 +42,7 @@ func NewAudioRecorder() *AudioRecorder {
 	return &AudioRecorder{}
 }
 
-func (a *AudioRecorder) Done() {
+func (a *AudioRecorder) Terminate() {
 	if initializedAudio {
 		portaudio.Terminate()
 	}
