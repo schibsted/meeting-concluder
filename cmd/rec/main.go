@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
@@ -10,7 +12,7 @@ import (
 
 const (
 	wavFilename   = "output.wav"
-	clapDetection = true
+	clapDetection = false
 )
 
 func main() {
@@ -25,8 +27,21 @@ func main() {
 	}
 
 	// Record audio to the specified file
-	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or clap...")
-	if err := audioRecorder.RecordToFile(wavFilename, 10*time.Second, clapDetection); err != nil {
+	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or triple clap...")
+
+	// Create a channel to listen for ctrl-c interrupt
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		// Wait for the interrupt signal
+		<-sigCh
+
+		// Close the StopRecordingCh channel to stop recording
+		close(audioRecorder.StopRecordingCh)
+	}()
+
+	if err := audioRecorder.RecordToFile(wavFilename, 1*time.Hour, clapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}
