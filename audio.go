@@ -132,7 +132,7 @@ func (a *AudioRecorder) WaitForRecordingToStop() {
 	<-a.StopRecordingCh
 }
 
-func (a *AudioRecorder) stopRecording() {
+func (a *AudioRecorder) StopRecording() {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -245,7 +245,7 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, tripleClapDetection bool) error {
 	a.startRecording()
 	time.AfterFunc(maxDuration, func() {
-		a.stopRecording()
+		a.StopRecording()
 	})
 
 	if tripleClapDetection {

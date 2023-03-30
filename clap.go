@@ -56,7 +56,7 @@ func (a *AudioRecorder) ListenForTripleClapSoundToStopRecording() {
 					lastClapTime = now
 				} else if clapCount >= clapThreshold {
 					log.Println("GOT A TRIPLE CLAP SOUND")
-					a.stopRecording()
+					a.StopRecording()
 					return
 				}
 			}
@@ -101,7 +101,7 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
 
 			if energy > energyThreshold {
 				log.Println("GOT A CLAP SOUND")
-				a.stopRecording()
+				a.StopRecording()
 				return
 			}
 		}
