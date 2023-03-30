@@ -18,7 +18,7 @@ Some refactoring is needed: moving functionality from utilities to the concluder
 
 ## Endpoints
 
-The `cmd/web/web` executable is a web server that provides several endpopints.
+The `cmd/restserver/restserver` executable is a web server that provides several endpopints.
 
 ### POST /login
 
