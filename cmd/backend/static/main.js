@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function stopRecording() {
-        document.getElementById("status").innerText = "Stopping recording...";
+        document.getElementById("status").innerText = "Processing audio...";
         try {
             const response = await fetch("/stop", {
                 method: "POST",
