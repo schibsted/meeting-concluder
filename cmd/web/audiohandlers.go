@@ -1,42 +1,52 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
 type AudioHandlers struct {
-	audioRecorder *concluder.AudioRecorder
+	ar *concluder.AudioRecorder
 }
 
 func NewAudioHandlers(ar *concluder.AudioRecorder) *AudioHandlers {
-	return &AudioHandlers{audioRecorder: ar}
+	return &AudioHandlers{ar: ar}
 }
 
-func (ah *AudioHandlers) startRecordingHandler(w http.ResponseWriter, r *http.Request) {
-	if ah.audioRecorder.IsRecording() {
-		http.Error(w, "Already recording", http.StatusConflict)
-		return
+func (ah *AudioHandlers) startRecordingHandler(c echo.Context) error {
+	clapDetection := c.QueryParam("clapDetection")
+	duration := c.QueryParam("duration")
+
+	clapDetectEnabled := false
+	if clapDetection == "true" {
+		clapDetectEnabled = true
 	}
-	ah.audioRecorder.StartRecording()
-	w.WriteHeader(http.StatusOK)
+
+	durationSeconds, err := strconv.Atoi(duration)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "Invalid duration provided",
+		})
+	}
+
+	ah.ar.RecordToFile(ah.generateFilename(), time.Duration(durationSeconds)*time.Second, clapDetectEnabled)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Recording started",
+	})
 }
 
-func (ah *AudioHandlers) stopRecordingHandler(w http.ResponseWriter, r *http.Request) {
-	if !ah.audioRecorder.IsRecording() {
-		http.Error(w, "Not recording", http.StatusConflict)
-		return
-	}
-	ah.audioRecorder.StopRecording()
-	filename := fmt.Sprintf("output_%s.wav", time.Now().Format("2006-01-02_15-04-05"))
-	if err := ah.audioRecorder.SaveWav(filename); err != nil {
-		http.Error(w, "Error saving recording", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"filename": filename})
+func (ah *AudioHandlers) stopRecordingHandler(c echo.Context) error {
+	ah.ar.StopRecording()
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Recording stopped",
+	})
+}
+
+func (ah *AudioHandlers) generateFilename() string {
+	return fmt.Sprintf("output-%s.wav", time.Now().Format("2006-01-02-15-04-05"))
 }

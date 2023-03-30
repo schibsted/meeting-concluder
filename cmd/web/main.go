@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
-	"github.com/xyproto/env/v2"
+	"log"
+	"os"
 )
 
 func main() {
@@ -20,14 +20,30 @@ func main() {
 
 	audioHandlers := NewAudioHandlers(ar)
 
-	http.HandleFunc("/start", audioHandlers.startRecordingHandler)
-	http.HandleFunc("/stop", audioHandlers.stopRecordingHandler)
+	e := echo.New()
 
-	addr := env.Str("HOST", ":3000")
-	fmt.Printf("Starting server on %s...\n", addr)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	err = http.ListenAndServe(addr, nil)
-	if err != nil {
+	e.POST("/login", loginHandler)
+
+	// JWT middleware
+	jwtMiddleware := echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+	})
+
+	e.GET("/user", getUser, jwtMiddleware)
+
+	e.POST("/start", audioHandlers.startRecordingHandler, jwtMiddleware)
+	e.POST("/stop", audioHandlers.stopRecordingHandler, jwtMiddleware)
+
+	addr := os.Getenv("HOST")
+	if addr == "" {
+		addr = ":3000"
+	}
+	log.Printf("Starting server on %s...\n", addr)
+
+	if err := e.Start(addr); err != nil {
 		log.Fatal(err)
 	}
 }
