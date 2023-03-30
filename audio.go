@@ -242,14 +242,14 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 	}
 }
 
-func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, clapDetection bool) error {
+func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, tripleClapDetection bool) error {
 	a.startRecording()
 	time.AfterFunc(maxDuration, func() {
 		a.stopRecording()
 	})
 
-	if clapDetection {
-		go a.ListenForClapSoundToStopRecording()
+	if tripleClapDetection {
+		go a.ListenForTripleClapSoundToStopRecording()
 	}
 	a.WaitForRecordingToStop()
 
