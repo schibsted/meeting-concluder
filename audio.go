@@ -242,14 +242,14 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 	}
 }
 
-func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, tripleClapDetection bool) error {
+func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, nClapDetection int) error {
 	a.startRecording()
 	time.AfterFunc(maxDuration, func() {
 		a.StopRecording()
 	})
 
-	if tripleClapDetection {
-		go a.ListenForTripleClapSoundToStopRecording()
+	if nClapDetection > 0 {
+		go ListenForNClapsToStopRecording(a, nClapDetection)
 	}
 	a.WaitForRecordingToStop()
 
@@ -284,7 +284,7 @@ func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error
 	return a.buffer.Bytes()[l-desiredSamples:], nil
 }
 
-func (audioRecorder *AudioRecorder) RecordAudio(clapDetection bool, maxRecord time.Duration) (string, error) {
+func (audioRecorder *AudioRecorder) RecordAudio(maxRecord time.Duration, nClapsDetection int) (string, error) {
 	// Create temporary file for wav
 	wavFile, err := ioutil.TempFile("", "input-*.wav")
 	if err != nil {
@@ -292,7 +292,7 @@ func (audioRecorder *AudioRecorder) RecordAudio(clapDetection bool, maxRecord ti
 	}
 
 	// Record audio to wav, up to maxRecord duration
-	if err := audioRecorder.RecordToFile(wavFile.Name(), maxRecord, clapDetection); err != nil {
+	if err := audioRecorder.RecordToFile(wavFile.Name(), maxRecord, nClapsDetection); err != nil {
 		os.Remove(wavFile.Name())
 		return "", fmt.Errorf("error recording to %s: %v", wavFile.Name(), err)
 	}

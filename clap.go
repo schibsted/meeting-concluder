@@ -1,106 +1,71 @@
 package concluder
 
 import (
-	"bytes"
-	"log"
 	"math"
+	"math/cmplx"
 	"time"
+
+	"github.com/mjibson/go-dsp/fft"
 )
 
-func (a *AudioRecorder) ListenForTripleClapSoundToStopRecording() {
-	audioLength := 1 * time.Second
+// Parameters for clap detection
+const (
+	windowSize    = 1024
+	clapThreshold = 500.0
+	maxInterval   = 0.8
+)
+
+// Listen for a specific number of claps within a certain time frame
+func ListenForNClapsToStopRecording(a *AudioRecorder, n int) {
 	loopSleep := 50 * time.Millisecond
 
-	// Clap detection parameters
-	energyThreshold := 3000.0 // Adjust this value based on the sensitivity you want
-	windowSize := 1024        // Size of the sliding window used for energy calculation
+	// Buffer for audio data
+	audioBuf := make([]float32, windowSize)
+	outputBuf := make([]float32, windowSize)
 
-	clapThreshold := 3                         // Number of claps required to trigger the stop signal
-	timeBetweenClaps := 400 * time.Millisecond // Maximum time between claps in a triple clap
+	// Magnitude buffer for FFT
+	magnitude := make([]float64, windowSize)
 
-	var clapCount int
-	var lastClapTime time.Time
+	// Number of claps detected so far
+	clapsDetected := 0
 
-	for a.Recording {
-		// Create new audio.IntBuffer.
-		tailData, err := a.GetRecordedDataTail(audioLength)
-		if err != nil {
-			log.Println(err)
-			time.Sleep(loopSleep)
-			continue
-		}
-
-		audioBuf, err := newAudioIntBuffer(bytes.NewReader(tailData))
-		if err != nil {
-			log.Println(err)
-			time.Sleep(loopSleep)
-			continue
-		}
-
-		// Analyze audioBuf to see if it contains a triple clap sound.
-		numSamples := len(audioBuf.Data)
-		for i := 0; i < numSamples-windowSize; i++ {
-			energy := 0.0
-			for j := 0; j < windowSize; j++ {
-				energy += math.Abs(float64(audioBuf.Data[i+j]))
-			}
-			energy /= float64(windowSize)
-
-			if energy > energyThreshold {
-				clapCount++
-
-				now := time.Now()
-				timeSinceLastClap := now.Sub(lastClapTime)
-
-				if clapCount == 1 || timeSinceLastClap > timeBetweenClaps {
-					lastClapTime = now
-				} else if clapCount >= clapThreshold {
-					log.Println("GOT A TRIPLE CLAP SOUND")
-					a.StopRecording()
-					return
-				}
-			}
-		}
-
-		time.Sleep(loopSleep)
-	}
-}
-
-func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
-	audioLength := 1 * time.Second
-	loopSleep := 50 * time.Millisecond
-
-	// Clap detection parameters
-	energyThreshold := 4000.0 // Adjust this value based on the sensitivity you want
-	windowSize := 1024        // Size of the sliding window used for energy calculation
+	// Timestamp of last clap detected
+	lastClap := time.Now()
 
 	for a.Recording {
-		// Create new audio.IntBuffer.
-		tailData, err := a.GetRecordedDataTail(audioLength)
-		if err != nil {
-			log.Println(err)
-			time.Sleep(loopSleep)
-			continue
-		}
 
-		audioBuf, err := newAudioIntBuffer(bytes.NewReader(tailData))
-		if err != nil {
-			log.Println(err)
-			time.Sleep(loopSleep)
-			continue
-		}
+		// Read audio data into buffer
+		a.captureAudio(audioBuf, outputBuf)
 
-		// Analyze audioBuf to see if it contains a clap sound.
-		numSamples := len(audioBuf.Data)
-		for i := 0; i < numSamples-windowSize; i++ {
-			energy := 0.0
-			for j := 0; j < windowSize; j++ {
-				energy += math.Abs(float64(audioBuf.Data[i+j]))
+		// Take FFT of audio buffer
+		for i, sample := range audioBuf {
+			magnitude[i] = float64(sample)
+		}
+		fft.FFTReal(magnitude)
+
+		// Find index of peak magnitude
+		peakIndex := 0
+		for i := 1; i < windowSize/2; i++ {
+			if math.Abs(magnitude[i]) > math.Abs(magnitude[peakIndex]) {
+				peakIndex = i
 			}
-			energy /= float64(windowSize)
+		}
 
-			if energy > energyThreshold {
-				log.Println("GOT A CLAP SOUND")
+		// Check if peak magnitude is above threshold
+		if cmplx.Abs(complex(magnitude[peakIndex], 0)) > clapThreshold {
+			// Check if it's been less than maxInterval since the last clap
+			now := time.Now()
+			interval := now.Sub(lastClap)
+			if interval.Seconds() < maxInterval {
+				clapsDetected++
+			} else {
+				clapsDetected = 1
+			}
+
+			lastClap = now
+
+			// Check if we've reached the desired number of claps
+			if clapsDetected >= n {
 				a.StopRecording()
 				return
 			}
@@ -108,4 +73,14 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
 
 		time.Sleep(loopSleep)
 	}
+}
+
+// Listen for a clap sounds to stop recording
+func ListenForClapToStopRecording(a *AudioRecorder) {
+	ListenForNClapsToStopRecording(a, 1)
+}
+
+// Listen for triple clap sounds to stop recording
+func ListenForTripleClapsToStopRecording(a *AudioRecorder) {
+	ListenForNClapsToStopRecording(a, 3)
 }
