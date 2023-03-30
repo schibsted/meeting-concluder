@@ -31,6 +31,37 @@ func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecor
 	e.POST("/stop", stopRecording(audioRecorder))
 	e.GET("/conclusion", getConclusion())
 	e.POST("/post-to-slack", postToSlack(audioRecorder))
+	e.POST("/stopped-by-clapping", stoppedByClapping())
+	e.GET("/clap-stop-event", clapStopEvent())
+}
+
+var clapStopChan = make(chan struct{})
+
+func clapStopEvent() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+		c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
+		c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
+		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+
+		select {
+		case <-clapStopChan:
+			c.Response().Write([]byte("data: Recording stopped by clapping\n\n"))
+			c.Response().Flush()
+		case <-c.Request().Context().Done():
+		}
+		return nil
+	}
+}
+
+func stoppedByClapping() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"message": "Recording stopped by clapping"})
+	}
+}
+
+func sendClapStopSignal() {
+	clapStopChan <- struct{}{}
 }
 
 func getDevices(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
@@ -90,11 +121,7 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		// Start the recording in a separate goroutine
 		go func() {
 			var err error
-			if err := audioRecorder.RecordAudio(wavFileName, duration, nClapDetection, func() {
-				// Send a POST request to this server to stop the recording
-				url := fmt.Sprintf("http://%s/stop", c.Request().Host)
-				http.Post(url, "application/json", nil)
-			}); err != nil {
+			if err := audioRecorder.RecordAudio(wavFileName, duration, nClapDetection, sendClapStopSignal); err != nil {
 				c.Logger().Errorf("Error recording audio to %s: %v", wavFileName, err)
 				return
 			}

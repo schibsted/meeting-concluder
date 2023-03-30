@@ -64,21 +64,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    async function pollForConclusion(attempts = 10, interval = 2000) {
+        for (let i = 0; i < attempts; i++) {
+            try {
+                conclusion = await getConclusion();
+                updateStatus("Recording stopped by clapping");
+                resultDiv.textContent = conclusion;
+                postToSlackBtn.disabled = false;
+                return;
+            } catch (error) {
+                if (i === attempts - 1) {
+                    updateStatus("Error: Conclusion not available");
+                } else {
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, interval)
+                    );
+                }
+            }
+        }
+    }
+
     async function getConclusion() {
         try {
             const response = await fetch("/conclusion");
             if (response.ok) {
                 const data = await response.json();
-                document.getElementById("conclusion").innerText =
-                    data.conclusion;
+                return data.conclusion;
             } else {
-                document.getElementById("conclusion").innerText =
-                    "Error: Conclusion not available";
+                throw new Error("Conclusion not available");
             }
         } catch (error) {
             console.error("Error fetching conclusion:", error);
-            document.getElementById("conclusion").innerText =
-                "Error: Conclusion not available";
+            throw error;
         }
     }
 
@@ -139,6 +156,23 @@ document.addEventListener("DOMContentLoaded", function () {
             updateStatus("Error stopping recording");
         }
     });
+
+    async function listenForClapStop() {
+        const source = new EventSource("/clap-stop-event");
+        source.onmessage = async function (event) {
+            if (event.data === "Recording stopped by clapping") {
+                setRecordingIndicator(false);
+                updateStatus("Processing audio...");
+
+                await pollForConclusion();
+
+                recordBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        };
+    }
+
+    listenForClapStop();
 
     // Initialize the recording indicator as hidden
     setRecordingIndicator(false);
