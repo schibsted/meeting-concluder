@@ -18,6 +18,7 @@ func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecor
 	e.POST("/select-device/:index", selectDevice(audioRecorder))
 	e.POST("/record", startRecording(audioRecorder))
 	e.POST("/stop", stopRecording(audioRecorder))
+	e.GET("/conclusion", getConclusion())
 }
 
 func getDevices(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
@@ -91,6 +92,16 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		}()
 
 		return c.JSON(http.StatusOK, map[string]string{"message": "Recording started"})
+	}
+}
+
+func getConclusion() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if conclusion == "" {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Conclusion not available"})
+		}
+
+		return c.JSON(http.StatusOK, map[string]string{"conclusion": conclusion})
 	}
 }
 

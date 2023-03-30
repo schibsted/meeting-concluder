@@ -52,11 +52,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             if (response.ok) {
                 document.getElementById("status").innerText = data.message;
-                await getConclusion();
             } else {
                 document.getElementById("status").innerText =
                     "Error: " + data.error;
             }
+            return data;
         } catch (error) {
             console.error("Error stopping recording:", error);
             document.getElementById("status").innerText =
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setRecordingIndicator(false);
             recordBtn.disabled = false;
             stopBtn.disabled = true;
-            conclusion = data.message;
+            conclusion = data.conclusion;
             resultDiv.textContent = "Conclusion: " + conclusion;
             postToSlackBtn.disabled = false;
         } else {
