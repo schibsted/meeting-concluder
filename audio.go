@@ -296,7 +296,7 @@ func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName, mp4Fi
 	err := convertToMP4(wavFileName, mp4FileName)
 	if deleteWav {
 		if err := os.Remove(wavFileName); err != nil {
-			return "", fmt.Errorf("error removing %s: %v", wavFileName, err)
+			//return "", fmt.Errorf("error removing %s: %v", wavFileName, err)
 		}
 	}
 	if err != nil {
@@ -307,7 +307,7 @@ func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName, mp4Fi
 	transcript, err := TranscribeAudio(mp4FileName)
 	if deleteMp4 {
 		if err := os.Remove(mp4FileName); err != nil {
-			return "", fmt.Errorf("error removing %s: %v", mp4FileName, err)
+			//return "", fmt.Errorf("error removing %s: %v", mp4FileName, err)
 		}
 	}
 	if err != nil {
