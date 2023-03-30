@@ -17,8 +17,8 @@ func generateFileNameWithTimestamp(prefix, extension string) string {
 }
 
 var (
-	wavFileName = generateFileNameWithTimestamp("recording", "wav")
-	mp4FileName = generateFileNameWithTimestamp("recording", "mp4")
+	wavFileName = "output.wav" // generateFileNameWithTimestamp("recording", "wav")
+	mp4FileName = "output.mp4" // generateFileNameWithTimestamp("recording", "mp4")
 
 	startTime = time.Now()
 	stopTime  = time.Now()
