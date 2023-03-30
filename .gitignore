@@ -5,8 +5,8 @@ cmd/play/play
 cmd/rec/rec
 cmd/slackpost/slackpost
 cmd/wav2mp4/wav2mp4
-cmd/restserver/restserver
-cmd/webapp/webapp
+cmd/backend/backend
+cmd/frontend/frontend
 
 # macOS
 .DS_Store
