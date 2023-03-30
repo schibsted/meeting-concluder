@@ -82,7 +82,7 @@ func Conclude(content string) (string, error) {
 		return "", fmt.Errorf("error generating summary: %v", err)
 	}
 
-	conclusionPrompt := fmt.Sprintf("Generate a conclusion for the following meeting transcription: \"%s\"", content)
+	conclusionPrompt := fmt.Sprintf("Generate a conclusion for the following meeting transcription (and at the end add a sentence of solid advice, formulated as a colorful command): \"%s\"", content)
 	conclusion, err := generateText(conclusionPrompt)
 	if err != nil {
 		return "", fmt.Errorf("error generating conclusion: %v\n", err)
