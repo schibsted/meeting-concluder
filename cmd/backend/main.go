@@ -24,6 +24,15 @@ func main() {
 	audioRecorder := concluder.NewAudioRecorder()
 	defer audioRecorder.Terminate()
 
+	e.GET("/", func(c echo.Context) error {
+		return c.File("static/index.html")
+	})
+
+	e.GET("/static/:filename", func(c echo.Context) error {
+		filename := c.Param("filename")
+		return c.File("./static/" + filename)
+	})
+
 	e.GET("/devices", func(c echo.Context) error {
 		devices, err := audioRecorder.InputDevices()
 		if err != nil {
