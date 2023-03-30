@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
@@ -11,7 +10,7 @@ import (
 const mp4FilePath = "input.mp4"
 
 func main() {
-	transcript, err := concluder.Transcribe(mp4FilePath)
+	transcript, err := concluder.TranscribeAudio(mp4FilePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error transribing %s: %v\n", mp4FilePath, err)
 		return

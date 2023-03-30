@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	wavFilename   = "output.wav"
-	clapDetection = false
+	wavFilename    = "output.wav"
+	nClapDetection = 1 // detect N number of claps before stopping. 0 to disable
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 		close(audioRecorder.StopRecordingCh)
 	}()
 
-	if err := audioRecorder.RecordToFile(wavFilename, 1*time.Hour, clapDetection); err != nil {
+	if err := audioRecorder.RecordToFile(wavFilename, 1*time.Hour, nClapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}

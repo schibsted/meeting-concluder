@@ -11,7 +11,7 @@ import (
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
-const tripleClapDetection = true
+const nClapDetection = 1 // number of claps detected for the recording to stop, use 0 to disable
 
 func main() {
 	// Initialize the AudioRecorder from the concluder package
@@ -49,7 +49,7 @@ func main() {
 		audioRecorder.StopRecording()
 	}()
 
-	if err := audioRecorder.RecordToFile(tmpfile.Name(), 1*time.Hour, tripleClapDetection); err != nil {
+	if err := audioRecorder.RecordToFile(tmpfile.Name(), 1*time.Hour, nClapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}
