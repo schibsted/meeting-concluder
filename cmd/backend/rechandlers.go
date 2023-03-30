@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -22,6 +23,8 @@ var (
 
 	startTime = time.Now()
 	stopTime  = time.Now()
+
+	convertMutex sync.Mutex
 )
 
 func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecorder) {
@@ -106,6 +109,10 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 			return c.JSON(http.StatusConflict, map[string]string{"error": "Recording is already in progress"})
 		}
 
+		convertMutex.Lock()
+		conclusion = ""
+		convertMutex.Unlock()
+
 		startTime = time.Now()
 
 		// Parse the recording duration from the request
@@ -121,18 +128,27 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		// Start the recording in a separate goroutine
 		go func() {
 			var err error
+			convertMutex.Lock()
 			if err := audioRecorder.RecordAudio(wavFileName, duration, nClapDetection, sendClapStopSignal); err != nil {
 				c.Logger().Errorf("Error recording audio to %s: %v", wavFileName, err)
+				convertMutex.Unlock()
 				return
 			}
+			convertMutex.Unlock()
+
 			stopTime = time.Now()
 
 			c.Logger().Info("Transcribing and concluding")
-			conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
-			if err != nil {
-				c.Logger().Errorf("Error generating conclusion: %v", err)
-				return
+			convertMutex.Lock()
+			if conclusion == "" {
+				conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
+				if err != nil {
+					c.Logger().Errorf("Error generating conclusion: %v", err)
+					convertMutex.Unlock()
+					return
+				}
 			}
+			convertMutex.Unlock()
 
 			c.Logger().Infof("Generated conclusion: %s", conclusion)
 		}()
@@ -160,10 +176,16 @@ func stopRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		audioRecorder.StopRecording()
 		stopTime = time.Now()
 
-		conclusion, err := audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
-		if err != nil {
-			return c.JSON(http.StatusConflict, map[string]string{"error": "Could not conclude"})
+		var err error
+		convertMutex.Lock()
+		if conclusion == "" {
+			conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
+			if err != nil {
+				convertMutex.Unlock()
+				return c.JSON(http.StatusConflict, map[string]string{"error": "Could not conclude"})
+			}
 		}
+		convertMutex.Unlock()
 
 		c.Logger().Infof("Generated conclusion: %s", conclusion)
 

@@ -37,5 +37,5 @@ func main() {
 
 	registerRecordingHandlers(e, audioRecorder)
 
-	e.Logger.Fatal(e.Start(":4000"))
+	e.Logger.Fatal(e.Start(":3000"))
 }
