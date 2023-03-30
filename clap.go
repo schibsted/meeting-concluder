@@ -7,13 +7,17 @@ import (
 	"time"
 )
 
-func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
+func (a *AudioRecorder) ListenForClapSoundToStopRecording(nClaps int) {
 	audioLength := 1 * time.Second
 	loopSleep := 50 * time.Millisecond
 
 	// Clap detection parameters
-	energyThreshold := 3000.0 // Adjust this value based on the sensitivity you want
-	windowSize := 1024        // Size of the sliding window used for energy calculation
+	energyThreshold := 3000.0              // Adjust this value based on the sensitivity you want
+	windowSize := 1024                     // Size of the sliding window used for energy calculation
+	clapCooldown := 400 * time.Millisecond // Time to wait before detecting another clap
+
+	clapsDetected := 0
+	lastClapDetected := time.Now().Add(-clapCooldown)
 
 	for a.Recording {
 		// Create new audio.IntBuffer.
@@ -40,10 +44,15 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
 			}
 			energy /= float64(windowSize)
 
-			if energy > energyThreshold {
+			if energy > energyThreshold && time.Since(lastClapDetected) > clapCooldown {
 				log.Println("GOT A CLAP SOUND")
-				a.StopRecording()
-				return
+				clapsDetected++
+				lastClapDetected = time.Now()
+
+				if clapsDetected >= nClaps {
+					a.StopRecording()
+					return
+				}
 			}
 		}
 

@@ -249,7 +249,7 @@ func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Durati
 	})
 
 	if nClapDetection > 0 {
-		go ListenForNClapsToStopRecording(a, nClapDetection)
+		go a.ListenForClapSoundToStopRecording(nClapDetection)
 	}
 	a.WaitForRecordingToStop()
 
