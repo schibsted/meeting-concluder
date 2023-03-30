@@ -42,5 +42,5 @@ The `afplay` command is needed for the `cmd/play/play` utility.
 
 ## General info
 
-* Version: 0.0.0
+* Version: 1.0.0
 * License: Apache2
