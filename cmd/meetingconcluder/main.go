@@ -62,12 +62,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	conclusion, err := audioRecorder.TranscribeConvertConclude(wavFile.Name(), mp4File.Name(), false)
+	conclusion, err := audioRecorder.TranscribeConvertConclude(wavFile.Name(), mp4File.Name(), false, false)
 	if err != nil {
 		fmt.Printf("Could not conclude: %v", err)
 		os.Exit(1)
 	}
 
-	duration := time.Now().Sub(startTime)
-	concluder.SendMeetingConclusion(conclusion, startTime, duration)
+	concluder.SendMeetingConclusion(conclusion, startTime, time.Now())
 }
