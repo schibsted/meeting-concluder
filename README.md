@@ -1,12 +1,31 @@
 # Hackday Meeting Concluder
 
-Summarize meetings automatically, by transcribing the audio and sending a summary to Slack.
+This application can record and then summarize meetings automatically. The summary and conclusion can optionally be sent to a Slack channel of your choosing.
 
-Currently, there are utilities available that can do all of this.
+## Repository contents
 
-The web interface that binds all these together is a work in progress.
+* A Go package named `concluder`.
+* A web server with REST endpoints and a web frontend.
+* Several command line utilities, which were used for testing.
 
-Some refactoring is needed: moving functionality from utilities to the concluder package.
+## Getting started
+
+* Install the required dependencies (portaudio, ffmpeg and Go 1.16 or later).
+* Configure your Slack web hook URL either as the `SLACK_EBHOOK_URL` environment variable, or as `slack_webhook = "YOUR SLACK WEBHOOK URL GOES HERE"` in `~/.config/concluder.toml`.
+* Configure your OpenAI API Key either as the `OPENAI_API_KEY` or `OPENAI_KEY` environment variable, or as `openai_api_key = "YOUR KEY GOES HERE"` in `~/.config/concluder.toml`.
+* Make sure that you have a working microphone.
+
+Clone the repository and run the server (which includes a frontend):
+
+```sh
+git clone  https://github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder.git
+cd hackday-meeting-concluder
+cd cmd/backend/backend
+go build -mod=vendor
+./backend
+```
+
+The visit `http://localhost:3000`.
 
 ## Utilities
 
@@ -19,15 +38,7 @@ Some refactoring is needed: moving functionality from utilities to the concluder
 
 A double clap can be used to stop the recording.
 
-## Requirements
-
-* The PortAudio library installed on your system.
-* Go 1.16 or higher.
-* The `ffmpeg` command (available in Homebrew), for the `cmd/wav2mp4/wav2mp4` utility.
-* The `afplay` command, for the `cmd/play/play` utility.
-* A working microphone.
-* An Slack web hook URL, either set as `SLACK_WEBHOOK_URL`, or as `slack_webhook` in `~/.config/concluder.toml`.
-* An OpenAI API key, either set as `OPENAI_API_KEY` or `OPENAI_KEY`, or as `openai_api_key` in `~/.config/concluder.toml`.
+The `afplay` command is needed for the `cmd/play/play` utility.
 
 ## General info
 
