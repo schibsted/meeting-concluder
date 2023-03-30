@@ -27,12 +27,20 @@ func main() {
 	startTime := time.Now()
 
 	// Create a temporary file to store the recorded audio
-	tmpfile, err := ioutil.TempFile("", "audio-*.wav")
+	wavFile, err := ioutil.TempFile("", "audio-*.wav")
 	if err != nil {
 		fmt.Printf("Error creating temporary file: %v", err)
 		os.Exit(1)
 	}
-	defer os.Remove(tmpfile.Name())
+	defer os.Remove(wavFile.Name())
+
+	// Create a temporary file to store the converted mp4
+	mp4File, err := ioutil.TempFile("", "audio-*.mp4")
+	if err != nil {
+		fmt.Printf("Error creating temporary file: %v", err)
+		os.Exit(1)
+	}
+	defer os.Remove(mp4File.Name())
 
 	// Record audio to the temporary file
 	fmt.Printf("Recording audio. To stop before the specified max duration, press ctrl-c or clap %d time(s)...\n", nClapDetection)
@@ -49,12 +57,12 @@ func main() {
 		audioRecorder.StopRecording()
 	}()
 
-	if err := audioRecorder.RecordToFile(tmpfile.Name(), 1*time.Hour, nClapDetection); err != nil {
+	if err := audioRecorder.RecordToFile(wavFile.Name(), 1*time.Hour, nClapDetection); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}
 
-	conclusion, err := audioRecorder.TranscribeConvertConclude(tmpfile.Name())
+	conclusion, err := audioRecorder.TranscribeConvertConclude(wavFile.Name(), mp4File.Name(), false)
 	if err != nil {
 		fmt.Printf("Could not conclude: %v", err)
 		os.Exit(1)

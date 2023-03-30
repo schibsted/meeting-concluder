@@ -3,17 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Recorder</title>
-  <script src="/static/tailwind-3.3.0.min.js"></script>
-  <script src="/static/main.js"></script>
-  <style>
-    /* Custom CSS styles here */
-  </style>
+  <title>Meeting Recorder and Concluder</title>
+  <script src="/tailwind-3.3.0.min.js"></script>
+  <script src="/main.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
   <div class="container mx-auto p-8">
-    <h1 class="text-3xl mb-8">Audio Recorder</h1>
-
+    <h1 class="text-3xl mb-8">Meeting Recorder and Concluder</h1>
+    <div id="status" class="mt-4 text-gray-700"></div>
+    <div id="recordingIndicator" class="bg-red-500 w-4 h-4 rounded-full mt-4"></div>
     <div>
       <label for="devices">Select an audio device:</label>
       <select id="devices" class="border rounded p-2"></select>
@@ -23,6 +21,7 @@
       <button id="stopBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4" disabled>Stop</button>
     </div>
     <div id="result" class="mt-8"></div>
+    <div id="conclusion" class="conclusion"></div>
     <button id="postToSlack" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4" disabled>Post to Slack</button>
   </div>
 </body>
