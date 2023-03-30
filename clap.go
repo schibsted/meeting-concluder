@@ -15,7 +15,7 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording() {
 	energyThreshold := 3000.0 // Adjust this value based on the sensitivity you want
 	windowSize := 1024        // Size of the sliding window used for energy calculation
 
-	for a.recording {
+	for a.Recording {
 		// Create new audio.IntBuffer.
 		tailData, err := a.GetRecordedDataTail(audioLength)
 		if err != nil {

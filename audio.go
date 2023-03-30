@@ -19,13 +19,17 @@ import (
 type AudioRecorder struct {
 	stream              *portaudio.Stream
 	buffer              bytes.Buffer
-	recording           bool
+	Recording           bool
 	mutex               sync.RWMutex
 	selectedInputDevice *portaudio.DeviceInfo
-	stopRecordingCh     chan struct{}
+	StopRecordingCh     chan struct{}
 }
 
 var initializedAudio bool
+
+func (a *AudioRecorder) SetSelectedDevice(device *portaudio.DeviceInfo) {
+	a.selectedInputDevice = device
+}
 
 func NewAudioRecorder() *AudioRecorder {
 	if !initializedAudio {
@@ -84,12 +88,12 @@ func (a *AudioRecorder) StartRecording() {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
-	if a.recording {
+	if a.Recording {
 		fmt.Println("Audio recording is already in progress.")
 		return
 	}
 
-	a.stopRecordingCh = make(chan struct{})
+	a.StopRecordingCh = make(chan struct{})
 
 	if a.selectedInputDevice == nil {
 		var err error
@@ -115,50 +119,37 @@ func (a *AudioRecorder) StartRecording() {
 	}
 
 	a.stream = stream
-	a.recording = true
-	a.stopRecordingCh = make(chan struct{}) // Create a channel for notifying if the recording has stopped
+	a.Recording = true
+	a.StopRecordingCh = make(chan struct{}) // Create a channel for notifying if the recording has stopped
 
 	fmt.Println("Started audio recording.")
 }
 
 func (a *AudioRecorder) WaitForRecordingToStop() {
 	// Wait for the stop signal from the channel
-	<-a.stopRecordingCh
+	<-a.StopRecordingCh
 }
 
 func (a *AudioRecorder) StopRecording() {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
-	if !a.recording {
+	if !a.Recording {
 		return
 	}
 
-	a.recording = false
+	a.Recording = false
 	a.stream.Stop()
 	a.stream.Close()
 	//portaudio.Terminate()
 
-	close(a.stopRecordingCh) // Close the channel to signal that recording has stopped
+	close(a.StopRecordingCh) // Close the channel to signal that recording has stopped
 
 	fmt.Println("Stopped audio recording.")
 }
 
-func (a *AudioRecorder) GetRecordedData() []byte {
-	return a.buffer.Bytes()
-}
-
-func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error) {
-	desiredSamples := int(length.Seconds() * 16000)
-	l := a.buffer.Len()
-	if desiredSamples >= l {
-		return []byte{}, nil
-	}
-	return a.buffer.Bytes()[l-desiredSamples:], nil
-}
-
 func (a *AudioRecorder) captureAudio(inputBuffer, _ []float32) {
-	if !a.recording {
+	if !a.Recording {
 		return
 	}
 
@@ -266,4 +257,27 @@ func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Durati
 
 	fmt.Printf("Audio saved to %s\n", wavFilename)
 	return nil
+}
+
+func (a *AudioRecorder) IsRecording() bool {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+	return a.Recording
+}
+
+func (a *AudioRecorder) GetRecordedData() []byte {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+	return a.buffer.Bytes()
+}
+
+func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error) {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+	desiredSamples := int(length.Seconds() * 16000)
+	l := a.buffer.Len()
+	if desiredSamples >= l {
+		return []byte{}, nil
+	}
+	return a.buffer.Bytes()[l-desiredSamples:], nil
 }

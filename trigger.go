@@ -18,7 +18,7 @@ func (a *AudioRecorder) ListenForTriggerWordToStopRecording() error {
 	audioLength := 3 * time.Second
 	coolOff := 10 * time.Second
 	loopSleep := audioLength + coolOff
-	for a.recording {
+	for a.Recording {
 		if err := a.SaveTailToWav(3*time.Second, triggerWavFilename); err != nil {
 			return fmt.Errorf("error saving %s file: %v", triggerWavFilename, err)
 		}
