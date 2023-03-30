@@ -41,7 +41,7 @@ func main() {
 		close(audioRecorder.StopRecordingCh)
 	}()
 
-	if err := audioRecorder.RecordToFile(wavFilename, 1*time.Hour, nClapDetection); err != nil {
+	if err := audioRecorder.RecordToFile(wavFilename, 1*time.Hour, nClapDetection, nil); err != nil {
 		fmt.Printf("Error recording audio to file: %v", err)
 		os.Exit(1)
 	}
