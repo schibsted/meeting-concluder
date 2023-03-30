@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     postToSlackBtn.addEventListener("click", async () => {
+        updateStatus("Posting conclusion to Slack...");
         await postConclusionToSlack();
     });
 
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
             recordBtn.disabled = false;
             stopBtn.disabled = true;
             conclusion = data.conclusion;
-            resultDiv.textContent = "Conclusion: " + conclusion;
+            resultDiv.textContent = conclusion;
             postToSlackBtn.disabled = false;
         } else {
             updateStatus("Error stopping recording");
