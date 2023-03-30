@@ -12,7 +12,7 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording(nClaps int) {
 	loopSleep := 50 * time.Millisecond
 
 	// Clap detection parameters
-	energyThreshold := 3000.0              // Adjust this value based on the sensitivity you want
+	energyThreshold := 5000.0              // Adjust this value based on the sensitivity you want
 	windowSize := 1024                     // Size of the sliding window used for energy calculation
 	clapCooldown := 400 * time.Millisecond // Time to wait before detecting another clap
 
