@@ -7,6 +7,7 @@ cmd/slackpost/slackpost
 cmd/wav2mp4/wav2mp4
 cmd/backend/backend
 cmd/frontend/frontend
+cmd/meetingconcluder/meetingconcluder
 
 # macOS
 .DS_Store
