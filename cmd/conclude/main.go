@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )

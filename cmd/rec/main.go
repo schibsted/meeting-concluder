@@ -16,7 +16,7 @@ const (
 func main() {
 	// Initialize the AudioRecorder from the concluder package
 	audioRecorder := concluder.NewAudioRecorder()
-	defer audioRecorder.Done()
+	defer audioRecorder.Terminate()
 
 	// Let the user select an input device through a CLI menu
 	if err := audioRecorder.UserSelectsTheInputDevice(); err != nil {
