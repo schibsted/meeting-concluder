@@ -12,7 +12,7 @@ import (
 
 const (
 	wavFilename    = "output.wav"
-	nClapDetection = 1 // detect N number of claps before stopping. 0 to disable
+	nClapDetection = 2 // detect N number of claps before stopping. 0 to disable
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Record audio to the specified file
-	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or triple clap...")
+	fmt.Printf("Recording audio. To stop before the specified max duration, press ctrl-c or clap %d time(s)...\n", nClapDetection)
 
 	// Create a channel to listen for ctrl-c interrupt
 	sigCh := make(chan os.Signal, 1)

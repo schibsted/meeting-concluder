@@ -11,7 +11,7 @@ import (
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
-const nClapDetection = 1 // number of claps detected for the recording to stop, use 0 to disable
+const nClapDetection = 2 // number of claps detected for the recording to stop, use 0 to disable
 
 func main() {
 	// Initialize the AudioRecorder from the concluder package
@@ -35,7 +35,7 @@ func main() {
 	defer os.Remove(tmpfile.Name())
 
 	// Record audio to the temporary file
-	fmt.Println("Recording audio. To stop before the specified max duration, press ctrl-c or triple clap...")
+	fmt.Printf("Recording audio. To stop before the specified max duration, press ctrl-c or clap %d time(s)...\n", nClapDetection)
 
 	// Create a channel to listen for ctrl-c interrupt
 	sigCh := make(chan os.Signal, 1)
