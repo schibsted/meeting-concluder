@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,8 +11,18 @@ import (
 	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
 )
 
-var wavFileName = "output.wav"
-var mp4FileName = "output.mp4"
+func generateFileNameWithTimestamp(prefix, extension string) string {
+	timestamp := time.Now().Format("2006-01-02T15-04-05")
+	return fmt.Sprintf("%s-%s.%s", prefix, timestamp, extension)
+}
+
+var (
+	wavFileName = generateFileNameWithTimestamp("recording", "wav")
+	mp4FileName = generateFileNameWithTimestamp("recording", "mp4")
+
+	startTime = time.Now()
+	stopTime  = time.Now()
+)
 
 func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecorder) {
 	e.GET("/devices", getDevices(audioRecorder))
@@ -19,6 +30,7 @@ func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecor
 	e.POST("/record", startRecording(audioRecorder))
 	e.POST("/stop", stopRecording(audioRecorder))
 	e.GET("/conclusion", getConclusion())
+	e.POST("/post-to-slack", postToSlack(audioRecorder))
 }
 
 func getDevices(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
@@ -63,6 +75,8 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 			return c.JSON(http.StatusConflict, map[string]string{"error": "Recording is already in progress"})
 		}
 
+		startTime = time.Now()
+
 		// Parse the recording duration from the request
 		durationStr := c.QueryParam("duration")
 		if durationStr == "" {
@@ -80,6 +94,7 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 				c.Logger().Errorf("Error recording audio to %s: %v", wavFileName, err)
 				return
 			}
+			stopTime = time.Now()
 
 			c.Logger().Info("Transcribing and concluding")
 			conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
@@ -112,6 +127,7 @@ func stopRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		}
 
 		audioRecorder.StopRecording()
+		stopTime = time.Now()
 
 		conclusion, err := audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
 		if err != nil {
@@ -121,5 +137,17 @@ func stopRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		c.Logger().Infof("Generated conclusion: %s", conclusion)
 
 		return c.JSON(http.StatusOK, map[string]string{"message": "Recording stopped by user", "conclusion": conclusion})
+	}
+}
+
+func postToSlack(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if startTime.IsZero() || stopTime.IsZero() {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Recording start or end time is not available"})
+		}
+		if err := concluder.SendMeetingConclusion(conclusion, startTime, stopTime); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error sending conclusion to Slack"})
+		}
+		return c.JSON(http.StatusOK, map[string]string{"message": "Conclusion posted to Slack"})
 	}
 }

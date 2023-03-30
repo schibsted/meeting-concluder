@@ -64,11 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function postToSlack(conclusion) {
-        // Implement this function to post the conclusion to Slack
-        console.log("Posting to Slack:", conclusion);
-    }
-
     async function getConclusion() {
         try {
             const response = await fetch("/conclusion");
@@ -84,6 +79,24 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error fetching conclusion:", error);
             document.getElementById("conclusion").innerText =
                 "Error: Conclusion not available";
+        }
+    }
+
+    async function postConclusionToSlack() {
+        try {
+            const response = await fetch("/post-to-slack", {
+                method: "POST",
+            });
+
+            if (response.ok) {
+                updateStatus("Conclusion posted to Slack");
+            } else {
+                const data = await response.json();
+                updateStatus("Error posting to Slack: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error posting conclusion to Slack:", error);
+            updateStatus("Error posting conclusion to Slack");
         }
     }
 
@@ -105,6 +118,10 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             updateStatus("Error starting recording");
         }
+    });
+
+    postToSlackBtn.addEventListener("click", async () => {
+        await postConclusionToSlack();
     });
 
     stopBtn.addEventListener("click", async () => {
