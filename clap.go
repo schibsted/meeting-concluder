@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (a *AudioRecorder) ListenForClapSoundToStopRecording(nClaps int) {
+func (a *AudioRecorder) ListenForClapSoundToStopRecording(nClaps int, onRecordingStop func()) {
 	audioLength := 1 * time.Second
 	loopSleep := 50 * time.Millisecond
 
@@ -51,6 +51,9 @@ func (a *AudioRecorder) ListenForClapSoundToStopRecording(nClaps int) {
 
 				if clapsDetected >= nClaps {
 					a.StopRecording()
+					if onRecordingStop != nil {
+						onRecordingStop()
+					}
 					return
 				}
 			}

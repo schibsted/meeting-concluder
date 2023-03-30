@@ -90,7 +90,11 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		// Start the recording in a separate goroutine
 		go func() {
 			var err error
-			if err := audioRecorder.RecordAudio(wavFileName, duration, nClapDetection); err != nil {
+			if err := audioRecorder.RecordAudio(wavFileName, duration, nClapDetection, func() {
+				// Send a POST request to this server to stop the recording
+				url := fmt.Sprintf("http://%s/stop", c.Request().Host)
+				http.Post(url, "application/json", nil)
+			}); err != nil {
 				c.Logger().Errorf("Error recording audio to %s: %v", wavFileName, err)
 				return
 			}

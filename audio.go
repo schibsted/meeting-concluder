@@ -241,7 +241,7 @@ func newAudioIntBuffer(r io.Reader) (*audio.IntBuffer, error) {
 	}
 }
 
-func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, nClapDetection int) error {
+func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Duration, nClapDetection int, onRecordingStop func()) error {
 	a.startRecording()
 	time.AfterFunc(maxDuration, func() {
 		a.StopRecording()
@@ -249,7 +249,7 @@ func (a *AudioRecorder) RecordToFile(wavFilename string, maxDuration time.Durati
 
 	if nClapDetection > 0 {
 		time.Sleep(5 * time.Second)
-		go a.ListenForClapSoundToStopRecording(nClapDetection)
+		go a.ListenForClapSoundToStopRecording(nClapDetection, onRecordingStop)
 	}
 	a.WaitForRecordingToStop()
 
@@ -284,9 +284,9 @@ func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error
 	return a.buffer.Bytes()[l-desiredSamples:], nil
 }
 
-func (audioRecorder *AudioRecorder) RecordAudio(wavFileName string, maxRecord time.Duration, nClapsDetection int) error {
+func (audioRecorder *AudioRecorder) RecordAudio(wavFileName string, maxRecord time.Duration, nClapsDetection int, onRecordingStop func()) error {
 	// Record audio to wav, up to maxRecord duration
-	if err := audioRecorder.RecordToFile(wavFileName, maxRecord, nClapsDetection); err != nil {
+	if err := audioRecorder.RecordToFile(wavFileName, maxRecord, nClapsDetection, onRecordingStop); err != nil {
 		return fmt.Errorf("error recording to %s: %v", wavFileName, err)
 	}
 	return nil
