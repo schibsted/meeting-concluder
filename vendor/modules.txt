@@ -7,10 +7,6 @@ github.com/go-audio/riff
 # github.com/go-audio/wav v1.1.0
 ## explicit; go 1.13
 github.com/go-audio/wav
-# github.com/go-chi/chi/v5 v5.0.8
-## explicit; go 1.14
-github.com/go-chi/chi/v5
-github.com/go-chi/chi/v5/middleware
 # github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 ## explicit; go 1.18
 github.com/gordonklaus/portaudio
