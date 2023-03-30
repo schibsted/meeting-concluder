@@ -12,9 +12,14 @@ func (a *AudioRecorder) ListenForTripleClapSoundToStopRecording() {
 	loopSleep := 50 * time.Millisecond
 
 	// Clap detection parameters
-	energyThreshold := 4000.0 // Adjust this value based on the sensitivity you want
+	energyThreshold := 3000.0 // Adjust this value based on the sensitivity you want
 	windowSize := 1024        // Size of the sliding window used for energy calculation
-	clapCount := 0            // Number of claps detected
+
+	clapThreshold := 3                         // Number of claps required to trigger the stop signal
+	timeBetweenClaps := 400 * time.Millisecond // Maximum time between claps in a triple clap
+
+	var clapCount int
+	var lastClapTime time.Time
 
 	for a.Recording {
 		// Create new audio.IntBuffer.
@@ -32,7 +37,7 @@ func (a *AudioRecorder) ListenForTripleClapSoundToStopRecording() {
 			continue
 		}
 
-		// Analyze audioBuf to see if it contains a clap sound.
+		// Analyze audioBuf to see if it contains a triple clap sound.
 		numSamples := len(audioBuf.Data)
 		for i := 0; i < numSamples-windowSize; i++ {
 			energy := 0.0
@@ -43,13 +48,17 @@ func (a *AudioRecorder) ListenForTripleClapSoundToStopRecording() {
 
 			if energy > energyThreshold {
 				clapCount++
-				if clapCount == 3 {
-					log.Println("GOT TRIPLE CLAPS SOUND")
+
+				now := time.Now()
+				timeSinceLastClap := now.Sub(lastClapTime)
+
+				if clapCount == 1 || timeSinceLastClap > timeBetweenClaps {
+					lastClapTime = now
+				} else if clapCount >= clapThreshold {
+					log.Println("GOT A TRIPLE CLAP SOUND")
 					a.stopRecording()
 					return
 				}
-			} else {
-				clapCount = 0
 			}
 		}
 
