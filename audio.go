@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -284,42 +283,35 @@ func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error
 	return a.buffer.Bytes()[l-desiredSamples:], nil
 }
 
-func (audioRecorder *AudioRecorder) RecordAudio(maxRecord time.Duration, nClapsDetection int) (string, error) {
-	// Create temporary file for wav
-	wavFile, err := ioutil.TempFile("", "input-*.wav")
-	if err != nil {
-		return "", fmt.Errorf("error creating temporary .wav file: %v", err)
-	}
-
+func (audioRecorder *AudioRecorder) RecordAudio(wavFileName string, maxRecord time.Duration, nClapsDetection int) error {
 	// Record audio to wav, up to maxRecord duration
-	if err := audioRecorder.RecordToFile(wavFile.Name(), maxRecord, nClapsDetection); err != nil {
-		os.Remove(wavFile.Name())
-		return "", fmt.Errorf("error recording to %s: %v", wavFile.Name(), err)
+	if err := audioRecorder.RecordToFile(wavFileName, maxRecord, nClapsDetection); err != nil {
+		return fmt.Errorf("error recording to %s: %v", wavFileName, err)
 	}
-
-	return wavFile.Name(), nil
+	return nil
 }
 
-func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName string) (string, error) {
-	// Create temporary file for mp4
-	mp4File, err := ioutil.TempFile("", "input-*.mp4")
-	if err != nil {
-		os.Remove(wavFileName)
-		return "", fmt.Errorf("error creating temporary .mp4 file: %v", err)
-	}
-	defer os.Remove(mp4File.Name())
-
+func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName, mp4FileName string, deleteWav, deleteMp4 bool) (string, error) {
 	// Convert audio from wav to mp4
-	err = convertToMP4(wavFileName, mp4File.Name())
-	os.Remove(wavFileName)
+	err := convertToMP4(wavFileName, mp4FileName)
+	if deleteWav {
+		if err := os.Remove(wavFileName); err != nil {
+			return "", fmt.Errorf("error removing %s: %v", wavFileName, err)
+		}
+	}
 	if err != nil {
-		return "", fmt.Errorf("error converting %s to %s: %v", wavFileName, mp4File.Name(), err)
+		return "", fmt.Errorf("error converting %s to %s: %v", wavFileName, mp4FileName, err)
 	}
 
 	// Transcribe the audio
-	transcript, err := TranscribeAudio(mp4File.Name())
+	transcript, err := TranscribeAudio(mp4FileName)
+	if deleteMp4 {
+		if err := os.Remove(mp4FileName); err != nil {
+			return "", fmt.Errorf("error removing %s: %v", mp4FileName, err)
+		}
+	}
 	if err != nil {
-		return "", fmt.Errorf("error transcribing %s: %v", mp4File.Name(), err)
+		return "", fmt.Errorf("error transcribing %s: %v", mp4FileName, err)
 	}
 
 	// Conclude from the transcription
