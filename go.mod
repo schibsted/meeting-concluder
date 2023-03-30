@@ -5,10 +5,8 @@ go 1.20
 require (
 	github.com/go-audio/audio v1.0.0
 	github.com/go-audio/wav v1.1.0
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/mjibson/go-dsp v0.0.0-20180508042940-11479a337f12
 	github.com/pelletier/go-toml/v2 v2.0.7
 	github.com/xyproto/env/v2 v2.0.0
 )
