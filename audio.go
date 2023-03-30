@@ -300,7 +300,7 @@ func (audioRecorder *AudioRecorder) RecordAudio(clapDetection bool, maxRecord ti
 	return wavFile.Name(), nil
 }
 
-func (audioRecorder *AudioRecorder) TranscribeConvertConcludePost(wavFileName string) (string, error) {
+func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName string) (string, error) {
 	// Create temporary file for mp4
 	mp4File, err := ioutil.TempFile("", "input-*.mp4")
 	if err != nil {
@@ -326,12 +326,6 @@ func (audioRecorder *AudioRecorder) TranscribeConvertConcludePost(wavFileName st
 	conclusion, err := Conclude(transcript)
 	if err != nil {
 		return "", fmt.Errorf("error generating conclusion: %v", err)
-	}
-
-	// Post the conclusion to Slack
-	err = SendMessage(conclusion)
-	if err != nil {
-		return "", fmt.Errorf("error sending message to Slack channel: %v", err)
 	}
 
 	return conclusion, nil
