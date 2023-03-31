@@ -2,7 +2,7 @@
 
 This application can record and then summarize meetings automatically. The summary and conclusion can optionally be sent to a Slack channel of your choosing.
 
-## Repository contents
+## Project contents
 
 * A Go package named `concluder`.
 * A web server with REST endpoints and a web frontend.
@@ -35,10 +35,9 @@ The visit `http://localhost:3000`.
 * `cmd/conclude/conclude` was used for converting `cmd/audio2text/output.txt` to `cmd/conclude/output.txt`.
 * `cmd/slackpost/slackpost` was used for posting `cmd/conclude/output.txt` to `#nmp-meeting-concluder` on Slack.
 * `cmd/meetingconcluder/meetingconcluder` records, converts, transcribes, concludes and posts to Slack.
+* `cmd/play/play` can play wav files, buy requires the `afplay` command.
 
 A double clap can be used to stop the recording.
-
-The `afplay` command is needed for the `cmd/play/play` utility.
 
 ## General info
 
