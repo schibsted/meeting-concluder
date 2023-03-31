@@ -2,6 +2,10 @@
 
 This application can record and then summarize meetings automatically. The summary and conclusion can optionally be sent to a Slack channel of your choosing.
 
+## Screenshot
+
+![screenshot of recording in progress](img/screenshot.png)
+
 ## Project contents
 
 * A Go package named `concluder`.
