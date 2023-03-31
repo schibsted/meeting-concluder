@@ -47,6 +47,6 @@ These additional utilities were used for testing the functionality of the `concl
 
 ## General info
 
-* Version: 1.0.1
+* Version: 1.0.2
 * Author: Alexander F. Rødseth
 * License: Apache2
