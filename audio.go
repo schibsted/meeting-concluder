@@ -284,15 +284,15 @@ func (a *AudioRecorder) GetRecordedDataTail(length time.Duration) ([]byte, error
 	return a.buffer.Bytes()[l-desiredSamples:], nil
 }
 
-func (audioRecorder *AudioRecorder) RecordAudio(wavFileName string, maxRecord time.Duration, nClapsDetection int, onRecordingStop func()) error {
+func (a *AudioRecorder) RecordAudio(wavFileName string, maxRecord time.Duration, nClapsDetection int, onRecordingStop func()) error {
 	// Record audio to wav, up to maxRecord duration
-	if err := audioRecorder.RecordToFile(wavFileName, maxRecord, nClapsDetection, onRecordingStop); err != nil {
+	if err := a.RecordToFile(wavFileName, maxRecord, nClapsDetection, onRecordingStop); err != nil {
 		return fmt.Errorf("error recording to %s: %v", wavFileName, err)
 	}
 	return nil
 }
 
-func (audioRecorder *AudioRecorder) TranscribeConvertConclude(wavFileName, mp4FileName string, deleteWav, deleteMp4 bool) (string, error) {
+func TranscribeConvertConclude(wavFileName, mp4FileName string, deleteWav, deleteMp4 bool) (string, error) {
 	// Convert audio from wav to mp4
 	err := convertToMP4(wavFileName, mp4FileName)
 	if deleteWav {

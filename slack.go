@@ -18,7 +18,7 @@ func SendMessage(message string) error {
 		return err
 	}
 
-	resp, err := http.Post(Config.Slack_Webhook, "application/json", bytes.NewBuffer(data))
+	resp, err := http.Post(Config.SlackWebhook, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}

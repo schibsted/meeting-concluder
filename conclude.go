@@ -47,7 +47,7 @@ func generateText(prompt string) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Config.OpenAI_APIKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Config.OpenAIKey))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -85,7 +85,7 @@ func Conclude(content string) (string, error) {
 	conclusionPrompt := fmt.Sprintf("Generate a conclusion for the following meeting transcription (and at the end add a sentence of solid advice, formulated as a colorful command): \"%s\"", content)
 	conclusion, err := generateText(conclusionPrompt)
 	if err != nil {
-		return "", fmt.Errorf("error generating conclusion: %v\n", err)
+		return "", fmt.Errorf("error generating conclusion: %v", err)
 	}
 
 	return fmt.Sprintf("%s\n\n%s\n", strings.TrimSpace(summary), strings.TrimSpace(conclusion)), nil

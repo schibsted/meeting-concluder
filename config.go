@@ -11,8 +11,8 @@ import (
 )
 
 type APIConfig struct {
-	OpenAI_APIKey string `toml:"openai_api_key"`
-	Slack_Webhook string `toml:"slack_webhook"`
+	OpenAIKey    string `toml:"openai_api_key"`
+	SlackWebhook string `toml:"slack_webhook"`
 }
 
 // global configuration
@@ -34,16 +34,16 @@ func init() {
 	}
 
 	if val := env.StrAlt("OPENAI_API_KEY", "OPENAI_KEY", ""); val != "" {
-		Config.OpenAI_APIKey = val
+		Config.OpenAIKey = val
 	}
 	if val := env.Str("SLACK_WEBHOOK_URL"); val != "" {
-		Config.Slack_Webhook = val
+		Config.SlackWebhook = val
 	}
 
-	if Config.Slack_Webhook == "" {
+	if Config.SlackWebhook == "" {
 		log.Println("WARNING: openai_api_key must be set in ~/.config/concluder.toml or as $OPENAI_API_KEY or $OPENAI_KEY")
 	}
-	if Config.Slack_Webhook == "" {
+	if Config.SlackWebhook == "" {
 		log.Println("WARNING: slack_webhook must be set in ~/.config/concluder.toml or as $SLACK_WEBHOOK_URL")
 	}
 }

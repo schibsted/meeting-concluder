@@ -62,7 +62,7 @@ func TranscribeAudio(audioFilePath string) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Config.OpenAI_APIKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Config.OpenAIKey))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
