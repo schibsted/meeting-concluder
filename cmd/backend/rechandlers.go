@@ -36,6 +36,7 @@ func registerRecordingHandlers(e *echo.Echo, audioRecorder *concluder.AudioRecor
 	e.POST("/post-to-slack", postToSlack(audioRecorder))
 	e.POST("/stopped-by-clapping", stoppedByClapping())
 	e.GET("/clap-stop-event", clapStopEvent())
+	e.DELETE("/conclusion", clearConclusion())
 }
 
 var clapStopChan = make(chan struct{})
@@ -164,6 +165,15 @@ func getConclusion() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, map[string]string{"conclusion": conclusion})
+	}
+}
+
+func clearConclusion() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		convertMutex.Lock()
+		conclusion = ""
+		convertMutex.Unlock()
+		return c.JSON(http.StatusOK, map[string]string{"message": "Conclusion cleared"})
 	}
 }
 

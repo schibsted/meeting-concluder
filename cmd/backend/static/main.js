@@ -126,7 +126,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    async function clearConclusion() {
+        try {
+            const response = await fetch("/conclusion", {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                return true;
+            } else {
+                throw new Error("Error clearing conclusion");
+            }
+        } catch (error) {
+            console.error("Error clearing conclusion:", error);
+            return false;
+        }
+    }
+
     recordBtn.addEventListener("click", async () => {
+        // Clear the conclusion when the start recording button is clicked
+        if (await clearConclusion()) {
+            resultDiv.textContent = "";
+        } else {
+            updateStatus("Error clearing conclusion");
+        }
+
         if (await startRecording()) {
             updateStatus("Recording started");
             setRecordingIndicator(true);
