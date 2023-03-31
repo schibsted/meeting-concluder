@@ -6,12 +6,6 @@ This application can record and then summarize meetings automatically. The summa
 
 ![screenshot of recording in progress](img/screenshot.png)
 
-## Project contents
-
-* A Go package named `concluder`.
-* A web server with REST endpoints and a web frontend.
-* Several command line utilities, which were used for testing.
-
 ## Getting started
 
 * Install the required dependencies (portaudio, ffmpeg and Go 1.16 or later).
@@ -29,7 +23,15 @@ go build -mod=vendor
 ./backend
 ```
 
-The visit `http://localhost:3000`.
+Then visit `http://localhost:3000`.
+
+A double clap can be used to stop the recording.
+
+## Project contents
+
+* A Go package named `concluder`.
+* A web server with REST endpoints and a web frontend.
+* Several command line utilities, which were used for testing.
 
 ## Utilities
 
@@ -41,9 +43,8 @@ The visit `http://localhost:3000`.
 * `cmd/meetingconcluder/meetingconcluder` records, converts, transcribes, concludes and posts to Slack.
 * `cmd/play/play` can play wav files, buy requires the `afplay` command.
 
-A double clap can be used to stop the recording.
-
 ## General info
 
 * Version: 1.0.0
+* Author: Alexander F. Rødseth
 * License: Apache2
