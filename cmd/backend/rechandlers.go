@@ -141,7 +141,7 @@ func startRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 			c.Logger().Info("Transcribing and concluding")
 			convertMutex.Lock()
 			if conclusion == "" {
-				conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
+				conclusion, err = concluder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
 				if err != nil {
 					c.Logger().Errorf("Error generating conclusion: %v", err)
 					convertMutex.Unlock()
@@ -179,7 +179,7 @@ func stopRecording(audioRecorder *concluder.AudioRecorder) echo.HandlerFunc {
 		var err error
 		convertMutex.Lock()
 		if conclusion == "" {
-			conclusion, err = audioRecorder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
+			conclusion, err = concluder.TranscribeConvertConclude(wavFileName, mp4FileName, true, true)
 			if err != nil {
 				convertMutex.Unlock()
 				return c.JSON(http.StatusConflict, map[string]string{"error": "Could not conclude"})

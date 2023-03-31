@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	conclusion, err := audioRecorder.TranscribeConvertConclude(wavFile.Name(), mp4File.Name(), false, false)
+	conclusion, err := concluder.TranscribeConvertConclude(wavFile.Name(), mp4File.Name(), false, false)
 	if err != nil {
 		fmt.Printf("Could not conclude: %v", err)
 		os.Exit(1)
