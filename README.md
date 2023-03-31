@@ -16,9 +16,8 @@ This application can record and then summarize meetings automatically. The summa
 Clone the repository and run the server (which includes a frontend):
 
 ```sh
-git clone  https://github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder.git
-cd hackday-meeting-concluder
-cd cmd/backend/backend
+git clone https://github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder.git
+cd hackday-meeting-concluder/cmd/backend/backend
 go build -mod=vendor
 ./backend
 ```
