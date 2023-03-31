@@ -35,6 +35,8 @@ A double clap can be used to stop the recording.
 
 ## Utilities
 
+These additional utilities were used for testing the functionality of the `concluder` package.
+
 * `cmd/rec/rec` was used for recording `cmd/rec/output.wav` which contains is a recording of me saying `This meeting is about creating a llama farm.`.
 * `cmd/wav2mp4/wav2mp4` was used for converting `cmd/rec/output.wav` to `cmd/wav2mp4/output.mp4`.
 * `cmd/audio2text/audio2text` was used for converting `cmd/wav2mp4/output.wav` to `cmd/audio2text/output.txt`.
