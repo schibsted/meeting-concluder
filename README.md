@@ -54,7 +54,7 @@ These utilities were used for testing the functionality of the `concluder` packa
 * License: [Apache 2](LICENSE)
 * Version: 1.0.2
 
-### The contents of the NOTICE file
+## The contents of the NOTICE file
 
 (Required, per company policy).
 
