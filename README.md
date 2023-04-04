@@ -1,6 +1,8 @@
-# Hackday Meeting Concluder
+# Meeting Concluder
 
 This application can record and then summarize meetings automatically. The summary and conclusion can optionally be sent to a Slack channel of your choosing.
+
+Created in connection with the 2023 Hackdays.
 
 ## Screenshot
 
@@ -46,6 +48,27 @@ These utilities were used for testing the functionality of the `concluder` packa
 
 ## General info
 
-* Version: 1.0.2
 * Author: Alexander F. Rødseth
-* License: Apache2
+* License: [Apache 2](LICENSE)
+* Version: 1.0.2
+
+### The contents of the NOTICE file
+
+(Required, per company policy).
+
+```
+################################################################################
+#                                                                              #
+# Meeting Concluder                                                            #
+#                                                                              #
+# Copyright 2023 Schibsted                                                     #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+#                                                                              #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#                                                                              #
+################################################################################
+```
