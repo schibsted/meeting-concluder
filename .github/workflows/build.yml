@@ -10,13 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Go environment
+    - name: Install dependencies
       run: |
-        export GOPATH=$HOME/go
-        export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-      shell: bash
-    - name: Get dependencies
+        sudo apt update
+        sudo apt install -y portaudio19-dev ffmpeg
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.20
+    - name: Install Go dependencies
       run: go get -v ./...
     - name: Build
       run: go build -v
