@@ -1,4 +1,4 @@
-module github.schibsted.io/alexander-fet-rodseth/meeting-concluder
+module github.com/schibsted/meeting-concluder
 
 go 1.20
 
