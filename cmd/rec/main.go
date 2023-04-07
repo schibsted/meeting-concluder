@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
+	concluder "github.com/schibsted/meeting-concluder"
 )
 
 const (

@@ -11,7 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
+	concluder "github.com/schibsted/meeting-concluder"
 )
 
 func generateFileNameWithTimestamp(prefix, extension string) string {

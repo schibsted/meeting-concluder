@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
+	concluder "github.com/schibsted/meeting-concluder"
 )
 
 const mp4FilePath = "input.mp4"

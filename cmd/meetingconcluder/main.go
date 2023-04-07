@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	concluder "github.schibsted.io/alexander-fet-rodseth/hackday-meeting-concluder"
+	concluder "github.com/schibsted/meeting-concluder"
 )
 
 const nClapDetection = 2 // number of claps detected for the recording to stop, use 0 to disable
