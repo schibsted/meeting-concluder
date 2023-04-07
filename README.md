@@ -1,4 +1,4 @@
-# Meeting Concluder
+# Meeting Concluder [![Build status](https://github.com/schibsted/meeting-concluder/actions/workflows/build.yml/badge.svg)](https://github.com/schibsted/meeting-concluder/actions/workflows/build.yml)
 
 This application can record and then summarize meetings automatically. The summary and conclusion can optionally be sent to a Slack channel of your choosing.
 
