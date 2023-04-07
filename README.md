@@ -21,8 +21,8 @@ Clone the repository and run the server (which includes a frontend):
 
 ```sh
 git clone https://github.com/schibsted/meeting-concluder.git
-cd hackday-meeting-concluder/cmd/backend/backend
-go build -mod=vendor
+cd meeting-concluder/cmd/backend/backend
+go build
 ./backend
 ```
 
