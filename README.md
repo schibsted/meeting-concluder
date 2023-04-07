@@ -4,6 +4,8 @@ This application can record and then summarize meetings automatically. The summa
 
 Created in connection with the 2023 Hackdays.
 
+Note that the current maximum audio file size for the transcription API is 25 MiB, which is not a lot. Pull requests for adding batching are welcome.
+
 ## Screenshot
 
 ![screenshot of recording in progress](img/screenshot.png)
@@ -27,8 +29,6 @@ go build -mod=vendor
 Then visit `http://localhost:3000`.
 
 A double clap can be used to stop the recording.
-
-Note that the current maximum audio file size for the transcription API is 25 MiB, which is not a lot. Pull requests for adding batching are welcome.
 
 ## Project contents
 
